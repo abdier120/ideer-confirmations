@@ -23,27 +23,40 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 }
 .tab.active { background: #a78bfa; color: #fff; border-color: #a78bfa; }
 .tab.archived { opacity: 0.4; text-decoration: line-through; }
-
-/* Pastille sur onglet */
 .tab-badge {
   position: absolute; top: -5px; right: -5px;
   min-width: 18px; height: 18px; border-radius: 99px;
   font-size: 10px; font-weight: 700; line-height: 18px;
-  text-align: center; padding: 0 4px;
-  border: 2px solid #0d0d0d;
+  text-align: center; padding: 0 4px; border: 2px solid #0d0d0d;
 }
 .tab-badge.pending { background: #fbbf24; color: #000; }
 .tab-badge.done    { background: #34d399; color: #000; }
 .tab-badge.zero    { display: none; }
 
+/* SEARCH */
+.search-wrap { padding: 10px 14px 0; }
+.search-container { position: relative; }
+.search-input {
+  width: 100%; background: #18181b; border: 1px solid #27272a;
+  border-radius: 10px; padding: 10px 14px 10px 36px;
+  color: #f5f0eb; font-size: 13px; font-family: Georgia, serif;
+  outline: none; transition: border-color .2s;
+}
+.search-input:focus { border-color: #a78bfa; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+.search-results {
+  display: none; position: fixed; inset: 0; background: #0d0d0d;
+  z-index: 50; overflow-y: auto; padding: 14px;
+}
+.search-results.active { display: block; }
+.search-results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.search-results-title { font-size: 15px; font-weight: 700; color: #f5f0eb; }
+.search-close { background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 6px 12px; color: #9ca3af; font-size: 12px; cursor: pointer; font-family: Georgia, serif; }
+.search-empty { text-align: center; color: #6b7280; font-size: 13px; padding: 40px 0; }
+
 .day-panel { display: none; padding: 14px; }
 .day-panel.active { display: block; }
-
-.archived-banner {
-  background: #1c1c1c; border: 1px solid #3f3f46;
-  border-radius: 12px; padding: 20px; text-align: center;
-  color: #6b7280; font-size: 13px; margin-top: 10px;
-}
+.archived-banner { background: #1c1c1c; border: 1px solid #3f3f46; border-radius: 12px; padding: 20px; text-align: center; color: #6b7280; font-size: 13px; margin-top: 10px; }
 
 .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
 .stat { background: #18181b; border: 1px solid #27272a; border-radius: 10px; padding: 10px 6px; text-align: center; }
@@ -73,74 +86,30 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .item-name { font-size: 12px; color: #d1d5db; line-height: 1.4; }
 
 .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 10px 0 9px; }
-.status-btn {
-  padding: 9px 4px; font-size: 11px; font-weight: 600;
-  border-radius: 8px; border: 1px solid #27272a;
-  background: #0d0d0d; color: #9ca3af;
-  cursor: pointer; font-family: Georgia, serif; transition: all .2s;
-}
+.status-btn { padding: 9px 4px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #27272a; background: #0d0d0d; color: #9ca3af; cursor: pointer; font-family: Georgia, serif; transition: all .2s; }
 .status-btn.active-confirmed { background:#d1fae5; color:#065f46; border-color:#6ee7b7; }
 .status-btn.active-no_answer { background:#fef3c7; color:#92400e; border-color:#fcd34d; }
 .status-btn.active-cancelled  { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
 .status-btn.active-callback   { background:#ede9fe; color:#4c1d95; border-color:#c4b5fd; }
 
 .note-wrap { position: relative; }
-.note-area {
-  width: 100%; background: #0d0d0d; border: 1px dashed #3f3f46;
-  border-radius: 8px; padding: 8px 10px; color: #9ca3af;
-  font-size: 12px; font-family: Georgia, serif; resize: none;
-  outline: none; min-height: 38px; transition: border-color .2s, color .2s;
-}
+.note-area { width: 100%; background: #0d0d0d; border: 1px dashed #3f3f46; border-radius: 8px; padding: 8px 10px; color: #9ca3af; font-size: 12px; font-family: Georgia, serif; resize: none; outline: none; min-height: 38px; transition: border-color .2s, color .2s; }
 .note-area:focus { border-color: #a78bfa; color: #f5f0eb; border-style: solid; }
 .note-area.has-note { color: #d1d5db; border-style: solid; border-color: #3f3f46; }
-
 .saved-badge { position: absolute; right: 8px; bottom: 8px; font-size: 10px; color: #34d399; opacity: 0; transition: opacity .3s; }
 .saved-badge.show { opacity: 1; }
-
 .badge-status { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px; margin-left: 6px; vertical-align: middle; }
 
 .action-btns { display: flex; gap: 8px; margin-top: 4px; }
-.reset-btn {
-  flex: 1; background: transparent; border: 1px solid #3f3f46;
-  border-radius: 8px; padding: 9px; color: #6b7280;
-  font-size: 11px; cursor: pointer; font-family: Georgia, serif;
-}
-.archive-btn {
-  flex: 1; background: transparent; border: 1px solid #a78bfa;
-  border-radius: 8px; padding: 9px; color: #a78bfa;
-  font-size: 11px; cursor: pointer; font-family: Georgia, serif;
-  font-weight: 600;
-}
+.reset-btn { flex: 1; background: transparent; border: 1px solid #3f3f46; border-radius: 8px; padding: 9px; color: #6b7280; font-size: 11px; cursor: pointer; font-family: Georgia, serif; }
+.archive-btn { flex: 1; background: transparent; border: 1px solid #a78bfa; border-radius: 8px; padding: 9px; color: #a78bfa; font-size: 11px; cursor: pointer; font-family: Georgia, serif; font-weight: 600; }
+
+/* SYNC INDICATOR */
+.sync-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #6b7280; margin-left: 6px; vertical-align: middle; transition: background .3s; }
+.sync-dot.ok { background: #34d399; }
+.sync-dot.err { background: #f87171; }
 
 .footer { text-align: center; color: #374151; font-size: 11px; padding: 16px 0 24px; }
-
-/* SEARCH */
-.search-wrap { padding: 10px 14px 0; }
-.search-input {
-  width: 100%; background: #18181b; border: 1px solid #27272a;
-  border-radius: 10px; padding: 10px 14px 10px 36px;
-  color: #f5f0eb; font-size: 13px; font-family: Georgia, serif;
-  outline: none; transition: border-color .2s;
-}
-.search-input:focus { border-color: #a78bfa; }
-.search-icon { position: absolute; left: 26px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
-.search-container { position: relative; }
-.search-results {
-  display: none; position: fixed; inset: 0; background: #0d0d0d;
-  z-index: 50; overflow-y: auto; padding: 14px;
-}
-.search-results.active { display: block; }
-.search-results-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 14px;
-}
-.search-results-title { font-size: 15px; font-weight: 700; color: #f5f0eb; }
-.search-close {
-  background: #18181b; border: 1px solid #27272a; border-radius: 8px;
-  padding: 6px 12px; color: #9ca3af; font-size: 12px;
-  cursor: pointer; font-family: Georgia, serif;
-}
-.search-empty { text-align: center; color: #6b7280; font-size: 13px; padding: 40px 0; }
 </style>
 </head>
 <body>
@@ -157,21 +126,17 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 
 <div class="header">
   <div class="header-sub">Ideer Store</div>
-  <h1>Confirmations</h1>
+  <h1>Confirmations <span class="sync-dot" id="sync-dot" title="Synchronisation Firebase"></span></h1>
   <div class="tabs" id="tabs-container">
     <button class="tab active" id="tab-20260603" onclick="showDay('20260603',this)">
-      3 juin – Matin
-      <span class="tab-badge pending" id="tbadge-20260603">6</span>
-    </button>
-    <button class="tab" id="tab-20260603B" onclick="showDay('20260603B',this)">
-      3 juin – Soir
-      <span class="tab-badge pending" id="tbadge-20260603B">7</span>
+      3 juin 2026
+      <span class="tab-badge pending" id="tbadge-20260603">13</span>
     </button>
     <!-- NOUVELLES DATES ICI -->
   </div>
 </div>
 
-<!-- SEARCH BAR -->
+<!-- SEARCH -->
 <div class="search-wrap">
   <div class="search-container">
     <span class="search-icon">🔍</span>
@@ -179,7 +144,7 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
   </div>
 </div>
 
-<!-- SEARCH RESULTS OVERLAY -->
+<!-- SEARCH OVERLAY -->
 <div class="search-results" id="search-results">
   <div class="search-results-header">
     <div class="search-results-title" id="search-results-title">Résultats</div>
@@ -189,11 +154,11 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 </div>
 
 <!-- ===================================================== -->
-<!-- JOURNÉE : 3 JUIN – MATIN                              -->
+<!-- JOURNÉE : 3 JUIN 2026                                 -->
 <!-- ===================================================== -->
 <div class="day-panel active" id="day-20260603">
   <div class="stats">
-    <div class="stat"><div class="stat-num" id="cnt-20260603-pending" style="color:#9ca3af">6</div><div class="stat-label">En attente</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-20260603-pending" style="color:#9ca3af">13</div><div class="stat-label">En attente</div></div>
     <div class="stat"><div class="stat-num" id="cnt-20260603-confirmed" style="color:#34d399">0</div><div class="stat-label">Confirmées</div></div>
     <div class="stat"><div class="stat-num" id="cnt-20260603-other" style="color:#fbbf24">0</div><div class="stat-label">Traitées</div></div>
   </div>
@@ -347,29 +312,11 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     </div>
   </div>
 
-  <div class="action-btns">
-    <button class="reset-btn" onclick="resetDay('20260603')">🗑 Réinitialiser</button>
-    <button class="archive-btn" onclick="archiveDay('20260603')">📦 Archiver la journée</button>
-  </div>
-</div>
-<!-- FIN 3 JUIN MATIN -->
-
-<!-- ===================================================== -->
-<!-- JOURNÉE : 3 JUIN – SOIR                               -->
-<!-- ===================================================== -->
-<div class="day-panel" id="day-20260603B">
-  <div class="stats">
-    <div class="stat"><div class="stat-num" id="cnt-20260603B-pending" style="color:#9ca3af">7</div><div class="stat-label">En attente</div></div>
-    <div class="stat"><div class="stat-num" id="cnt-20260603B-confirmed" style="color:#34d399">0</div><div class="stat-label">Confirmées</div></div>
-    <div class="stat"><div class="stat-num" id="cnt-20260603B-other" style="color:#fbbf24">0</div><div class="stat-label">Traitées</div></div>
-  </div>
-  <div class="progress-wrap"><div class="progress-bar" id="prog-20260603B" style="width:0%"></div></div>
-
   <!-- #3020 -->
-  <div class="card" id="card-20260603B-3020">
+  <div class="card" id="card-20260603-3020">
     <div class="card-top">
       <div>
-        <div class="order-id">#3020 <span class="badge-status" id="badge-20260603B-3020"></span></div>
+        <div class="order-id">#3020 <span class="badge-status" id="badge-20260603-3020"></span></div>
         <div class="customer-name">حنان العطري</div>
         <div class="customer-city">📍 حوامة فاطمة العوامة<br>طنجة, Maroc</div>
         <div class="customer-phone">📞 +212648555115</div>
@@ -378,22 +325,22 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     </div>
     <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_3_fevr_2026_02_24_05_V2.jpg?v=1778362350&width=150" alt=""><span class="item-name">🛍 Sac bandoulière élégant Modèle Milano – Noir</span></div>
     <div class="status-grid">
-      <button class="status-btn" onclick="setStatus('20260603B','3020','confirmed')">✅ Confirmée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3020','no_answer')">📵 Pas de réponse</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3020','cancelled')">❌ Annulée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3020','callback')">🔁 Rappeler</button>
+      <button class="status-btn" onclick="setStatus('20260603','3020','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3020','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3020','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3020','callback')">🔁 Rappeler</button>
     </div>
     <div class="note-wrap">
-      <textarea class="note-area" id="note-20260603B-3020" placeholder="＋ Remarque..." onblur="saveNote('20260603B','3020')" oninput="onNoteInput('20260603B','3020')"></textarea>
-      <span class="saved-badge" id="saved-20260603B-3020">✓ Sauvegardé</span>
+      <textarea class="note-area" id="note-20260603-3020" placeholder="＋ Remarque..." onblur="saveNote('20260603','3020')" oninput="onNoteInput('20260603','3020')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3020">✓ Sauvegardé</span>
     </div>
   </div>
 
   <!-- #3021 -->
-  <div class="card" id="card-20260603B-3021">
+  <div class="card" id="card-20260603-3021">
     <div class="card-top">
       <div>
-        <div class="order-id">#3021 <span class="badge-status" id="badge-20260603B-3021"></span></div>
+        <div class="order-id">#3021 <span class="badge-status" id="badge-20260603-3021"></span></div>
         <div class="customer-name">Zoubaa Houda</div>
         <div class="customer-city">📍 Aswar Meknes<br>Meknès, Maroc</div>
         <div class="customer-phone">📞 +212663455141</div>
@@ -402,22 +349,22 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     </div>
     <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPTImage11avr.2026_15_31_43.png?v=1778361941&width=150" alt=""><span class="item-name">🛍 Sac Élégance Dorée – Cremy</span></div>
     <div class="status-grid">
-      <button class="status-btn" onclick="setStatus('20260603B','3021','confirmed')">✅ Confirmée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3021','no_answer')">📵 Pas de réponse</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3021','cancelled')">❌ Annulée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3021','callback')">🔁 Rappeler</button>
+      <button class="status-btn" onclick="setStatus('20260603','3021','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3021','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3021','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3021','callback')">🔁 Rappeler</button>
     </div>
     <div class="note-wrap">
-      <textarea class="note-area" id="note-20260603B-3021" placeholder="＋ Remarque..." onblur="saveNote('20260603B','3021')" oninput="onNoteInput('20260603B','3021')"></textarea>
-      <span class="saved-badge" id="saved-20260603B-3021">✓ Sauvegardé</span>
+      <textarea class="note-area" id="note-20260603-3021" placeholder="＋ Remarque..." onblur="saveNote('20260603','3021')" oninput="onNoteInput('20260603','3021')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3021">✓ Sauvegardé</span>
     </div>
   </div>
 
   <!-- #3022 -->
-  <div class="card" id="card-20260603B-3022">
+  <div class="card" id="card-20260603-3022">
     <div class="card-top">
       <div>
-        <div class="order-id">#3022 <span class="badge-status" id="badge-20260603B-3022"></span></div>
+        <div class="order-id">#3022 <span class="badge-status" id="badge-20260603-3022"></span></div>
         <div class="customer-name">Hala</div>
         <div class="customer-city">📍 Wifak polyclinique<br>Temara, Maroc</div>
         <div class="customer-phone">📞 +212603653943</div>
@@ -426,22 +373,22 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     </div>
     <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_18_mai_2026_03_20_19.png?v=1779070830&width=150" alt=""><span class="item-name">🛍 Sac Chic Texturé – Camel</span></div>
     <div class="status-grid">
-      <button class="status-btn" onclick="setStatus('20260603B','3022','confirmed')">✅ Confirmée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3022','no_answer')">📵 Pas de réponse</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3022','cancelled')">❌ Annulée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3022','callback')">🔁 Rappeler</button>
+      <button class="status-btn" onclick="setStatus('20260603','3022','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3022','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3022','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3022','callback')">🔁 Rappeler</button>
     </div>
     <div class="note-wrap">
-      <textarea class="note-area" id="note-20260603B-3022" placeholder="＋ Remarque..." onblur="saveNote('20260603B','3022')" oninput="onNoteInput('20260603B','3022')"></textarea>
-      <span class="saved-badge" id="saved-20260603B-3022">✓ Sauvegardé</span>
+      <textarea class="note-area" id="note-20260603-3022" placeholder="＋ Remarque..." onblur="saveNote('20260603','3022')" oninput="onNoteInput('20260603','3022')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3022">✓ Sauvegardé</span>
     </div>
   </div>
 
   <!-- #3023 -->
-  <div class="card" id="card-20260603B-3023">
+  <div class="card" id="card-20260603-3023">
     <div class="card-top">
       <div>
-        <div class="order-id">#3023 <span class="badge-status" id="badge-20260603B-3023"></span></div>
+        <div class="order-id">#3023 <span class="badge-status" id="badge-20260603-3023"></span></div>
         <div class="customer-name">Bouchra</div>
         <div class="customer-city">📍 Hay Hassani<br>Casablanca, Maroc</div>
         <div class="customer-phone">📞 +212608898816</div>
@@ -450,22 +397,22 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     </div>
     <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPTImage11avr.2026_15_31_43.png?v=1778361941&width=150" alt=""><span class="item-name">🛍 Sac Élégance Dorée – Noir</span></div>
     <div class="status-grid">
-      <button class="status-btn" onclick="setStatus('20260603B','3023','confirmed')">✅ Confirmée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3023','no_answer')">📵 Pas de réponse</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3023','cancelled')">❌ Annulée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3023','callback')">🔁 Rappeler</button>
+      <button class="status-btn" onclick="setStatus('20260603','3023','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3023','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3023','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3023','callback')">🔁 Rappeler</button>
     </div>
     <div class="note-wrap">
-      <textarea class="note-area" id="note-20260603B-3023" placeholder="＋ Remarque..." onblur="saveNote('20260603B','3023')" oninput="onNoteInput('20260603B','3023')"></textarea>
-      <span class="saved-badge" id="saved-20260603B-3023">✓ Sauvegardé</span>
+      <textarea class="note-area" id="note-20260603-3023" placeholder="＋ Remarque..." onblur="saveNote('20260603','3023')" oninput="onNoteInput('20260603','3023')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3023">✓ Sauvegardé</span>
     </div>
   </div>
 
   <!-- #3024 -->
-  <div class="card" id="card-20260603B-3024">
+  <div class="card" id="card-20260603-3024">
     <div class="card-top">
       <div>
-        <div class="order-id">#3024 <span class="badge-status" id="badge-20260603B-3024"></span></div>
+        <div class="order-id">#3024 <span class="badge-status" id="badge-20260603-3024"></span></div>
         <div class="customer-name">زينب المرشاني</div>
         <div class="customer-city">📍 جنان الفورات 2<br>تمارة, Maroc</div>
         <div class="customer-phone">📞 +212646173697</div>
@@ -474,22 +421,22 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     </div>
     <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_6_avr_2026_04_33_44_V8.jpg?v=1778361981&width=150" alt=""><span class="item-name">🛍 Sac Julia Luxe – Cremy</span></div>
     <div class="status-grid">
-      <button class="status-btn" onclick="setStatus('20260603B','3024','confirmed')">✅ Confirmée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3024','no_answer')">📵 Pas de réponse</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3024','cancelled')">❌ Annulée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3024','callback')">🔁 Rappeler</button>
+      <button class="status-btn" onclick="setStatus('20260603','3024','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3024','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3024','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3024','callback')">🔁 Rappeler</button>
     </div>
     <div class="note-wrap">
-      <textarea class="note-area" id="note-20260603B-3024" placeholder="＋ Remarque..." onblur="saveNote('20260603B','3024')" oninput="onNoteInput('20260603B','3024')"></textarea>
-      <span class="saved-badge" id="saved-20260603B-3024">✓ Sauvegardé</span>
+      <textarea class="note-area" id="note-20260603-3024" placeholder="＋ Remarque..." onblur="saveNote('20260603','3024')" oninput="onNoteInput('20260603','3024')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3024">✓ Sauvegardé</span>
     </div>
   </div>
 
   <!-- #3025 -->
-  <div class="card" id="card-20260603B-3025">
+  <div class="card" id="card-20260603-3025">
     <div class="card-top">
       <div>
-        <div class="order-id">#3025 <span class="badge-status" id="badge-20260603B-3025"></span></div>
+        <div class="order-id">#3025 <span class="badge-status" id="badge-20260603-3025"></span></div>
         <div class="customer-name">Ouafae</div>
         <div class="customer-city">📍 Hay salam résidence Zineb n5n12<br>Ifrane, Maroc</div>
         <div class="customer-phone">📞 +212697351177</div>
@@ -499,22 +446,22 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_3_fevr._2026_01_58_40.png?v=1778362445&width=150" alt=""><span class="item-name">🛍 Sac Bandoulière Style Élégant – Marron</span></div>
     <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPTImage11avr.2026_15_31_43.png?v=1778361941&width=150" alt=""><span class="item-name">🛍 Sac Élégance Dorée – Bordeaux</span></div>
     <div class="status-grid">
-      <button class="status-btn" onclick="setStatus('20260603B','3025','confirmed')">✅ Confirmée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3025','no_answer')">📵 Pas de réponse</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3025','cancelled')">❌ Annulée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3025','callback')">🔁 Rappeler</button>
+      <button class="status-btn" onclick="setStatus('20260603','3025','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3025','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3025','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3025','callback')">🔁 Rappeler</button>
     </div>
     <div class="note-wrap">
-      <textarea class="note-area" id="note-20260603B-3025" placeholder="＋ Remarque..." onblur="saveNote('20260603B','3025')" oninput="onNoteInput('20260603B','3025')"></textarea>
-      <span class="saved-badge" id="saved-20260603B-3025">✓ Sauvegardé</span>
+      <textarea class="note-area" id="note-20260603-3025" placeholder="＋ Remarque..." onblur="saveNote('20260603','3025')" oninput="onNoteInput('20260603','3025')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3025">✓ Sauvegardé</span>
     </div>
   </div>
 
   <!-- #3026 -->
-  <div class="card" id="card-20260603B-3026">
+  <div class="card" id="card-20260603-3026">
     <div class="card-top">
       <div>
-        <div class="order-id">#3026 <span class="badge-status" id="badge-20260603B-3026"></span></div>
+        <div class="order-id">#3026 <span class="badge-status" id="badge-20260603-3026"></span></div>
         <div class="customer-name">نرجس العلمي</div>
         <div class="customer-city">📍 سعيد حجي سلا<br>Salé, Maroc</div>
         <div class="customer-phone">📞 +212717079107</div>
@@ -524,65 +471,112 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_18_mai_2026_03_20_19.png?v=1779070830&width=150" alt=""><span class="item-name">🛍 Sac Chic Texturé – Nude</span></div>
     <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_18_mai_2026_03_20_19.png?v=1779070830&width=150" alt=""><span class="item-name">🛍 Sac Chic Texturé – Camel</span></div>
     <div class="status-grid">
-      <button class="status-btn" onclick="setStatus('20260603B','3026','confirmed')">✅ Confirmée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3026','no_answer')">📵 Pas de réponse</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3026','cancelled')">❌ Annulée</button>
-      <button class="status-btn" onclick="setStatus('20260603B','3026','callback')">🔁 Rappeler</button>
+      <button class="status-btn" onclick="setStatus('20260603','3026','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3026','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3026','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3026','callback')">🔁 Rappeler</button>
     </div>
     <div class="note-wrap">
-      <textarea class="note-area" id="note-20260603B-3026" placeholder="＋ Remarque..." onblur="saveNote('20260603B','3026')" oninput="onNoteInput('20260603B','3026')"></textarea>
-      <span class="saved-badge" id="saved-20260603B-3026">✓ Sauvegardé</span>
+      <textarea class="note-area" id="note-20260603-3026" placeholder="＋ Remarque..." onblur="saveNote('20260603','3026')" oninput="onNoteInput('20260603','3026')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3026">✓ Sauvegardé</span>
     </div>
   </div>
 
   <div class="action-btns">
-    <button class="reset-btn" onclick="resetDay('20260603B')">🗑 Réinitialiser</button>
-    <button class="archive-btn" onclick="archiveDay('20260603B')">📦 Archiver la journée</button>
+    <button class="reset-btn" onclick="resetDay('20260603')">🗑 Réinitialiser</button>
+    <button class="archive-btn" onclick="archiveDay('20260603')">📦 Archiver</button>
   </div>
 </div>
-<!-- FIN 3 JUIN SOIR -->
+<!-- FIN 3 JUIN 2026 -->
 
 <!-- NOUVELLES JOURNÉES : COLLER LE BLOC ICI EN DESSOUS -->
 
 <div class="footer">ideer.store · Outil de confirmation interne</div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCFnbU9KGwDS93expUWIk9A33jsHQvq6SY",
+  authDomain: "ideer-confirmations.firebaseapp.com",
+  databaseURL: "https://ideer-confirmations-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "ideer-confirmations",
+  storageBucket: "ideer-confirmations.firebasestorage.app",
+  messagingSenderId: "628118309432",
+  appId: "1:628118309432:web:faeb85b5985f22deef34cd"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 const STATUS_CFG = {
-  confirmed: { label:'✅ Confirmée',      cls:'active-confirmed', bg:'#d1fae5', color:'#065f46', border:'#6ee7b7' },
-  no_answer: { label:'📵 Pas de réponse', cls:'active-no_answer', bg:'#fef3c7', color:'#92400e', border:'#fcd34d' },
-  cancelled:  { label:'❌ Annulée',        cls:'active-cancelled',  bg:'#fee2e2', color:'#991b1b', border:'#fca5a5' },
-  callback:   { label:'🔁 Rappeler',       cls:'active-callback',   bg:'#ede9fe', color:'#4c1d95', border:'#c4b5fd' },
+  confirmed: { label:'✅ Confirmée',      bg:'#d1fae5', color:'#065f46', border:'#6ee7b7' },
+  no_answer: { label:'📵 Pas de réponse', bg:'#fef3c7', color:'#92400e', border:'#fcd34d' },
+  cancelled:  { label:'❌ Annulée',        bg:'#fee2e2', color:'#991b1b', border:'#fca5a5' },
+  callback:   { label:'🔁 Rappeler',       bg:'#ede9fe', color:'#4c1d95', border:'#c4b5fd' },
 };
 const STATUS_KEYS = ['confirmed','no_answer','cancelled','callback'];
 
-function lsKey(day, order) { return 'ideer_' + day + '_' + order; }
-function archKey(day) { return 'ideer_arch_' + day; }
-function getState(day, order) { try { return JSON.parse(localStorage.getItem(lsKey(day,order)) || '{}'); } catch(e) { return {}; } }
-function saveState(day, order, data) { try { localStorage.setItem(lsKey(day,order), JSON.stringify(data)); } catch(e) {} }
+// Cache local
+const cache = {};
 
-function setStatus(day, order, s) {
-  const st = getState(day, order);
+function fbRef(day, order) { return ref(db, `orders/${day}/${order}`); }
+function archRef(day) { return ref(db, `archives/${day}`); }
+
+function setSyncDot(ok) {
+  const dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  dot.className = 'sync-dot ' + (ok ? 'ok' : 'err');
+}
+
+// Ecoute temps réel pour une journée
+function listenDay(day) {
+  const panel = document.getElementById('day-' + day);
+  if (!panel) return;
+  const ids = getOrderIds(day);
+  ids.forEach(id => {
+    onValue(fbRef(day, id), (snap) => {
+      const data = snap.val() || {};
+      cache[day + '_' + id] = data;
+      applyCard(day, id);
+      setSyncDot(true);
+    }, () => setSyncDot(false));
+  });
+  // Archive listener
+  onValue(archRef(day), (snap) => {
+    if (snap.val()) applyArchiveUI(day);
+  });
+}
+
+function getState(day, id) { return cache[day + '_' + id] || {}; }
+
+window.setStatus = function(day, order, s) {
+  const st = { ...getState(day, order) };
   st.status = st.status === s ? null : s;
-  saveState(day, order, st);
+  cache[day + '_' + order] = st;
   applyCard(day, order);
   updateStats(day);
   updateTabBadge(day);
-}
+  set(fbRef(day, order), st).then(() => setSyncDot(true)).catch(() => setSyncDot(false));
+};
 
-function saveNote(day, order) {
+window.saveNote = function(day, order) {
   const val = document.getElementById('note-' + day + '-' + order).value;
-  const st = getState(day, order);
-  st.note = val;
-  saveState(day, order, st);
-  const b = document.getElementById('saved-' + day + '-' + order);
-  b.classList.add('show');
-  setTimeout(() => b.classList.remove('show'), 1500);
-}
+  const st = { ...getState(day, order), note: val };
+  cache[day + '_' + order] = st;
+  set(fbRef(day, order), st).then(() => {
+    setSyncDot(true);
+    const b = document.getElementById('saved-' + day + '-' + order);
+    b.classList.add('show');
+    setTimeout(() => b.classList.remove('show'), 1500);
+  }).catch(() => setSyncDot(false));
+};
 
-function onNoteInput(day, order) {
+window.onNoteInput = function(day, order) {
   const ta = document.getElementById('note-' + day + '-' + order);
   ta.classList.toggle('has-note', ta.value.length > 0);
-}
+};
 
 function applyCard(day, order) {
   const st = getState(day, order);
@@ -604,6 +598,8 @@ function applyCard(day, order) {
   }
   const ta = document.getElementById('note-' + day + '-' + order);
   if (ta && st.note) { ta.value = st.note; ta.classList.add('has-note'); }
+  updateStats(day);
+  updateTabBadge(day);
 }
 
 function getOrderIds(day) {
@@ -621,7 +617,7 @@ function updateStats(day) {
     else if (s === 'confirmed') confirmed++;
     else other++;
   });
-  const el = (id) => document.getElementById(id);
+  const el = id => document.getElementById(id);
   if (el('cnt-'+day+'-pending'))   el('cnt-'+day+'-pending').textContent   = pending;
   if (el('cnt-'+day+'-confirmed')) el('cnt-'+day+'-confirmed').textContent = confirmed;
   if (el('cnt-'+day+'-other'))     el('cnt-'+day+'-other').textContent     = other;
@@ -635,101 +631,67 @@ function updateTabBadge(day) {
   const badge = document.getElementById('tbadge-' + day);
   if (!badge) return;
   const pending = ids.filter(id => !getState(day, id).status).length;
-  if (pending === 0) {
-    badge.textContent = '✓';
-    badge.className = 'tab-badge done';
-  } else {
-    badge.textContent = pending;
-    badge.className = 'tab-badge pending';
-  }
+  badge.textContent = pending === 0 ? '✓' : pending;
+  badge.className = 'tab-badge ' + (pending === 0 ? 'done' : 'pending');
 }
 
-function archiveDay(day) {
-  if (!confirm('Archiver cette journée ? Elle restera visible mais masquée.')) return;
-  localStorage.setItem(archKey(day), '1');
-  applyArchive(day);
-}
+window.archiveDay = function(day) {
+  if (!confirm('Archiver cette journée ?')) return;
+  set(archRef(day), true).then(() => { setSyncDot(true); applyArchiveUI(day); }).catch(() => setSyncDot(false));
+};
 
-function applyArchive(day) {
-  const isArchived = localStorage.getItem(archKey(day)) === '1';
+function applyArchiveUI(day) {
   const panel = document.getElementById('day-' + day);
   const tab = document.getElementById('tab-' + day);
   if (!panel || !tab) return;
-  if (isArchived) {
-    tab.classList.add('archived');
-    const badge = document.getElementById('tbadge-' + day);
-    if (badge) badge.className = 'tab-badge zero';
-    // Replace panel content with banner
-    const cards = panel.querySelectorAll('.card');
-    cards.forEach(c => c.style.display = 'none');
-    const existing = panel.querySelector('.archived-banner');
-    if (!existing) {
-      const banner = document.createElement('div');
-      banner.className = 'archived-banner';
-      banner.innerHTML = '📦 Journée archivée<br><small style="font-size:11px;margin-top:6px;display:block">Les commandes sont conservées mais masquées</small><button onclick="unarchiveDay(\'' + day + '\')" style="margin-top:12px;background:transparent;border:1px solid #6b7280;border-radius:8px;padding:6px 14px;color:#9ca3af;font-size:11px;cursor:pointer;font-family:Georgia,serif">Désarchiver</button>';
-      panel.insertBefore(banner, panel.querySelector('.action-btns'));
-    }
+  tab.classList.add('archived');
+  const badge = document.getElementById('tbadge-' + day);
+  if (badge) badge.className = 'tab-badge zero';
+  panel.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+  if (!panel.querySelector('.archived-banner')) {
+    const banner = document.createElement('div');
+    banner.className = 'archived-banner';
+    banner.innerHTML = `📦 Journée archivée<br><small style="font-size:11px;margin-top:6px;display:block">Commandes masquées</small><button onclick="window.unarchiveDay('${day}')" style="margin-top:12px;background:transparent;border:1px solid #6b7280;border-radius:8px;padding:6px 14px;color:#9ca3af;font-size:11px;cursor:pointer;font-family:Georgia,serif">Désarchiver</button>`;
+    const ab = panel.querySelector('.action-btns');
+    if (ab) panel.insertBefore(banner, ab);
   }
 }
 
-function unarchiveDay(day) {
-  localStorage.removeItem(archKey(day));
-  location.reload();
-}
+window.unarchiveDay = function(day) {
+  remove(archRef(day)).then(() => location.reload());
+};
 
-function resetDay(day) {
-  if (!confirm('Réinitialiser toutes les données de cette journée ?')) return;
-  getOrderIds(day).forEach(id => localStorage.removeItem(lsKey(day, id)));
-  location.reload();
-}
+window.resetDay = function(day) {
+  if (!confirm('Réinitialiser toutes les données ?')) return;
+  const ids = getOrderIds(day);
+  Promise.all(ids.map(id => remove(fbRef(day, id)))).then(() => location.reload());
+};
 
-function showDay(day, el) {
+window.showDay = function(day, el) {
   document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('day-' + day).classList.add('active');
   el.classList.add('active');
-  initDay(day);
-}
-
-function initDay(day) {
-  getOrderIds(day).forEach(id => applyCard(day, id));
-  updateStats(day);
-  updateTabBadge(day);
-  applyArchive(day);
-}
-
-// PASSWORD
-function checkPwd() {
-  if (document.getElementById('pwd-input').value === 'awatif10') {
-    localStorage.setItem('ideer_auth','1');
-    document.getElementById('login-screen').style.display='none';
-  } else {
-    document.getElementById('pwd-error').textContent = '❌ Mot de passe incorrect';
-    document.getElementById('pwd-input').value='';
-    setTimeout(()=>document.getElementById('pwd-error').textContent='',2000);
-  }
-}
-document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPwd(); });
-if (localStorage.getItem('ideer_auth')==='1') document.getElementById('login-screen').style.display='none';
+};
 
 // SEARCH
 const ALL_ORDERS = [
-  { day:'20260603',  id:'3014', name:'Yassine Lachhab',    phone:'+212608249787', city:'Casablanca',  items:['Sac Chic Texturé – Beige','Sac Chic Texturé – Marron'] },
-  { day:'20260603',  id:'3015', name:'Widad',              phone:'+212663548135', city:'Casablanca',  items:['Sac bandoulière élégant Modèle Milano – Marron'] },
-  { day:'20260603',  id:'3016', name:'Hafsa',              phone:'0726570805',    city:'Benslimane',  items:['Sac Chic Texturé – Bordeaux','Modèle Stella Classique – Cremy'] },
-  { day:'20260603',  id:'3017', name:'Siham',              phone:'+212623943036', city:'Fès',         items:['Sac Élégance Signature – Beige','Sac Julia Luxe – Camel'] },
-  { day:'20260603',  id:'3018', name:'Nisrine El Fahfouhi',phone:'+212626100092', city:'Fès',         items:['Modèle Stella Classique – Bordeaux'] },
-  { day:'20260603',  id:'3019', name:'Ibtissam Fettah',    phone:'+212663862967', city:'Berrechid',   items:['Sac Julia Luxe – Marron','Sac Julia Luxe – Blanc'] },
-  { day:'20260603B', id:'3020', name:'حنان العطري',         phone:'+212648555115', city:'طنجة',        items:['Sac bandoulière élégant Modèle Milano – Noir'] },
-  { day:'20260603B', id:'3021', name:'Zoubaa Houda',       phone:'+212663455141', city:'Meknès',      items:['Sac Élégance Dorée – Cremy'] },
-  { day:'20260603B', id:'3022', name:'Hala',               phone:'+212603653943', city:'Temara',      items:['Sac Chic Texturé – Camel'] },
-  { day:'20260603B', id:'3023', name:'Bouchra',            phone:'+212608898816', city:'Casablanca',  items:['Sac Élégance Dorée – Noir'] },
-  { day:'20260603B', id:'3024', name:'زينب المرشاني',       phone:'+212646173697', city:'تمارة',       items:['Sac Julia Luxe – Cremy'] },
-  { day:'20260603B', id:'3025', name:'Ouafae',             phone:'+212697351177', city:'Ifrane',      items:['Sac Bandoulière Style Élégant – Marron','Sac Élégance Dorée – Bordeaux'] },
-  { day:'20260603B', id:'3026', name:'نرجس العلمي',         phone:'+212717079107', city:'Salé',        items:['Sac Chic Texturé – Nude','Sac Chic Texturé – Camel'] },
+  { day:'20260603', id:'3014', name:'Yassine Lachhab',    phone:'+212608249787', city:'Casablanca', items:['Sac Chic Texturé – Beige','Sac Chic Texturé – Marron'] },
+  { day:'20260603', id:'3015', name:'Widad',              phone:'+212663548135', city:'Casablanca', items:['Sac bandoulière élégant Modèle Milano – Marron'] },
+  { day:'20260603', id:'3016', name:'Hafsa',              phone:'0726570805',    city:'Benslimane', items:['Sac Chic Texturé – Bordeaux','Modèle Stella Classique – Cremy'] },
+  { day:'20260603', id:'3017', name:'Siham',              phone:'+212623943036', city:'Fès',        items:['Sac Élégance Signature – Beige','Sac Julia Luxe – Camel'] },
+  { day:'20260603', id:'3018', name:'Nisrine El Fahfouhi',phone:'+212626100092', city:'Fès',        items:['Modèle Stella Classique – Bordeaux'] },
+  { day:'20260603', id:'3019', name:'Ibtissam Fettah',    phone:'+212663862967', city:'Berrechid',  items:['Sac Julia Luxe – Marron','Sac Julia Luxe – Blanc'] },
+  { day:'20260603', id:'3020', name:'حنان العطري',         phone:'+212648555115', city:'طنجة',       items:['Sac bandoulière élégant Modèle Milano – Noir'] },
+  { day:'20260603', id:'3021', name:'Zoubaa Houda',       phone:'+212663455141', city:'Meknès',     items:['Sac Élégance Dorée – Cremy'] },
+  { day:'20260603', id:'3022', name:'Hala',               phone:'+212603653943', city:'Temara',     items:['Sac Chic Texturé – Camel'] },
+  { day:'20260603', id:'3023', name:'Bouchra',            phone:'+212608898816', city:'Casablanca', items:['Sac Élégance Dorée – Noir'] },
+  { day:'20260603', id:'3024', name:'زينب المرشاني',       phone:'+212646173697', city:'تمارة',      items:['Sac Julia Luxe – Cremy'] },
+  { day:'20260603', id:'3025', name:'Ouafae',             phone:'+212697351177', city:'Ifrane',     items:['Sac Bandoulière Style Élégant – Marron','Sac Élégance Dorée – Bordeaux'] },
+  { day:'20260603', id:'3026', name:'نرجس العلمي',         phone:'+212717079107', city:'Salé',       items:['Sac Chic Texturé – Nude','Sac Chic Texturé – Camel'] },
 ];
 
-function doSearch(q) {
+window.doSearch = function(q) {
   const overlay = document.getElementById('search-results');
   const body = document.getElementById('search-results-body');
   const title = document.getElementById('search-results-title');
@@ -741,35 +703,54 @@ function doSearch(q) {
     o.phone.replace(/\s/g,'').includes(q.replace(/\s/g,''))
   );
   title.textContent = results.length + ' résultat' + (results.length !== 1 ? 's' : '');
-  if (results.length === 0) {
-    body.innerHTML = '<div class="search-empty">Aucun client trouvé</div>';
-    return;
-  }
+  if (!results.length) { body.innerHTML = '<div class="search-empty">Aucun client trouvé</div>'; return; }
   body.innerHTML = results.map(o => {
     const st = getState(o.day, o.id);
     const cfg = st.status ? STATUS_CFG[st.status] : null;
     const badgeHTML = cfg ? `<span style="background:${cfg.bg};color:${cfg.color};padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;margin-left:6px">${cfg.label}</span>` : '';
-    const dayLabel = o.day === '20260603' ? '3 juin – Matin' : o.day === '20260603B' ? '3 juin – Soir' : o.day;
-    return `
-    <div style="background:#18181b;border:1px solid ${cfg ? cfg.border : '#27272a'};border-radius:14px;padding:13px;margin-bottom:10px">
-      <div style="font-size:10px;color:#a78bfa;font-weight:600;letter-spacing:1px;margin-bottom:4px">#${o.id} · ${dayLabel} ${badgeHTML}</div>
+    return `<div style="background:#18181b;border:1px solid ${cfg?cfg.border:'#27272a'};border-radius:14px;padding:13px;margin-bottom:10px">
+      <div style="font-size:10px;color:#a78bfa;font-weight:600;letter-spacing:1px;margin-bottom:4px">#${o.id} ${badgeHTML}</div>
       <div style="font-size:15px;font-weight:700">${o.name}</div>
       <div style="font-size:11px;color:#6b7280;margin-top:2px">📍 ${o.city}</div>
       <div style="font-size:11px;color:#a78bfa;margin-top:1px">📞 ${o.phone}</div>
       <div style="margin:8px 0">${o.items.map(i=>`<div style="font-size:12px;color:#d1d5db;background:#0d0d0d;border-radius:6px;padding:5px 8px;margin-bottom:4px">🛍 ${i}</div>`).join('')}</div>
-      <a href="https://wa.me/${o.phone.replace(/\D/g,'').replace(/^0/,'212')}?text=Salam%20${encodeURIComponent(o.name.split(' ')[0])}%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%23${o.id}%20chez%20*Ideer%20Store*%20!" style="display:inline-flex;align-items:center;gap:6px;background:#22c55e;color:#fff;border-radius:8px;padding:8px 14px;text-decoration:none;font-size:12px;font-weight:600">💬 Ouvrir WhatsApp</a>
+      <a href="https://wa.me/${o.phone.replace(/\D/g,'').replace(/^0/,'212')}?text=Salam%20${encodeURIComponent(o.name.split(' ')[0])}%20%F0%9F%8C%B8" style="display:inline-flex;align-items:center;gap:6px;background:#22c55e;color:#fff;border-radius:8px;padding:8px 14px;text-decoration:none;font-size:12px;font-weight:600">💬 WhatsApp</a>
     </div>`;
   }).join('');
-}
+};
 
-function closeSearch() {
+window.closeSearch = function() {
   document.getElementById('search-results').classList.remove('active');
   document.getElementById('search-input').value = '';
+};
+
+// PASSWORD
+window.checkPwd = function() {
+  if (document.getElementById('pwd-input').value === 'awatif10') {
+    localStorage.setItem('ideer_auth','1');
+    document.getElementById('login-screen').style.display='none';
+    initAll();
+  } else {
+    document.getElementById('pwd-error').textContent = '❌ Mot de passe incorrect';
+    document.getElementById('pwd-input').value='';
+    setTimeout(()=>document.getElementById('pwd-error').textContent='',2000);
+  }
+};
+document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') window.checkPwd(); });
+
+function initAll() {
+  // Ecoute toutes les journées
+  document.querySelectorAll('.day-panel').forEach(p => {
+    const day = p.id.replace('day-','');
+    listenDay(day);
+  });
 }
 
-// INIT
-['20260603','20260603B'].forEach(d => initDay(d));
-initDay('20260603');
+// Auto-login si déjà authentifié
+if (localStorage.getItem('ideer_auth')==='1') {
+  document.getElementById('login-screen').style.display='none';
+  initAll();
+}
 </script>
 </body>
 </html>
