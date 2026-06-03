@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ideer Store – Confirmations</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-height: 100vh; }
+
+/* HEADER */
+.header { text-align: center; padding: 18px 14px 10px; position: sticky; top: 0; background: #0d0d0d; z-index: 10; border-bottom: 1px solid #1c1c1c; }
+.header-sub { font-size: 10px; letter-spacing: 4px; color: #a78bfa; text-transform: uppercase; margin-bottom: 3px; }
+.header h1 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
+
+/* DATE TABS */
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding: 0 2px 2px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid #27272a;
+  background: #18181b;
+  color: #9ca3af;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  white-space: nowrap;
+  transition: all .2s;
+}
+.tab.active { background: #a78bfa; color: #fff; border-color: #a78bfa; }
+
+/* CONTENT */
+.day-panel { display: none; padding: 14px; }
+.day-panel.active { display: block; }
+
+/* STATS */
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+.stat { background: #18181b; border: 1px solid #27272a; border-radius: 10px; padding: 10px 6px; text-align: center; }
+.stat-num { font-size: 20px; font-weight: 700; }
+.stat-label { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+.progress-wrap { background: #27272a; border-radius: 99px; height: 5px; margin-bottom: 16px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg,#a78bfa,#34d399); border-radius: 99px; transition: width .4s; }
+
+/* CARD */
+.card { background: #18181b; border: 1px solid #27272a; border-radius: 14px; padding: 13px; margin-bottom: 12px; transition: border-color .3s; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.order-id { color: #a78bfa; font-size: 11px; font-weight: 600; letter-spacing: 1px; }
+.customer-name { font-size: 15px; font-weight: 700; margin-top: 2px; }
+.customer-city { color: #6b7280; font-size: 11px; margin-top: 2px; line-height: 1.5; }
+.customer-phone { color: #a78bfa; font-size: 11px; margin-top: 1px; }
+
+.wa-btn {
+  background: #22c55e; color: #fff; border-radius: 10px;
+  width: 46px; height: 46px; font-size: 22px;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none; flex-shrink: 0; margin-left: 10px;
+  box-shadow: 0 0 14px rgba(34,197,94,.35);
+}
+
+.item-row { display: flex; align-items: center; gap: 8px; background: #0d0d0d; border-radius: 8px; padding: 6px 8px; margin-bottom: 5px; }
+.item-img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #1f1f1f; }
+.item-name { font-size: 12px; color: #d1d5db; line-height: 1.4; }
+
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 10px 0 9px; }
+.status-btn {
+  padding: 9px 4px; font-size: 11px; font-weight: 600;
+  border-radius: 8px; border: 1px solid #27272a;
+  background: #0d0d0d; color: #9ca3af;
+  cursor: pointer; font-family: Georgia, serif; transition: all .2s;
+}
+.status-btn.active-confirmed { background:#d1fae5; color:#065f46; border-color:#6ee7b7; }
+.status-btn.active-no_answer { background:#fef3c7; color:#92400e; border-color:#fcd34d; }
+.status-btn.active-cancelled  { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
+.status-btn.active-callback   { background:#ede9fe; color:#4c1d95; border-color:#c4b5fd; }
+
+.note-wrap { position: relative; }
+.note-area {
+  width: 100%; background: #0d0d0d; border: 1px dashed #3f3f46;
+  border-radius: 8px; padding: 8px 10px; color: #9ca3af;
+  font-size: 12px; font-family: Georgia, serif; resize: none;
+  outline: none; min-height: 38px; transition: border-color .2s, color .2s;
+}
+.note-area:focus { border-color: #a78bfa; color: #f5f0eb; border-style: solid; }
+.note-area.has-note { color: #d1d5db; border-style: solid; border-color: #3f3f46; }
+
+.saved-badge { position: absolute; right: 8px; bottom: 8px; font-size: 10px; color: #34d399; opacity: 0; transition: opacity .3s; }
+.saved-badge.show { opacity: 1; }
+
+.badge-status { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px; margin-left: 6px; vertical-align: middle; }
+
+.reset-btn { display: block; margin: 4px auto 16px; background: transparent; border: 1px solid #3f3f46; border-radius: 8px; padding: 7px 16px; color: #6b7280; font-size: 11px; cursor: pointer; font-family: Georgia, serif; }
+.footer { text-align: center; color: #374151; font-size: 11px; padding-bottom: 24px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="position:fixed;inset:0;background:#0d0d0d;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px">
+  <div style="font-size:10px;letter-spacing:4px;color:#a78bfa;text-transform:uppercase;margin-bottom:8px">Ideer Store</div>
+  <div style="font-size:22px;font-weight:700;color:#f5f0eb;margin-bottom:4px">Confirmations</div>
+  <div style="font-size:12px;color:#6b7280;margin-bottom:32px">Espace privé – accès réservé</div>
+  <input id="pwd-input" type="password" placeholder="Mot de passe..." style="width:100%;max-width:280px;background:#18181b;border:1px solid #27272a;border-radius:10px;padding:12px 16px;color:#f5f0eb;font-size:15px;outline:none;text-align:center;font-family:Georgia,serif;margin-bottom:10px">
+  <div id="pwd-error" style="color:#f87171;font-size:12px;height:16px;margin-bottom:10px"></div>
+  <button onclick="checkPwd()" style="width:100%;max-width:280px;background:#a78bfa;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:Georgia,serif">Entrer</button>
+</div>
+
+<div class="header">
+  <div class="header-sub">Ideer Store</div>
+  <h1>Confirmations</h1>
+  <div class="tabs" id="tabs-container">
+    <button class="tab active" onclick="showDay('20260603')">3 juin 2026</button>
+    <!-- NOUVELLES DATES ICI -->
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- JOURNÉE : 3 JUIN 2026                                   -->
+<!-- ======================================================= -->
+<div class="day-panel active" id="day-20260603">
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="cnt-20260603-pending" style="color:#9ca3af">6</div><div class="stat-label">En attente</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-20260603-confirmed" style="color:#34d399">0</div><div class="stat-label">Confirmées</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-20260603-other" style="color:#fbbf24">0</div><div class="stat-label">Traitées</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-20260603" style="width:0%"></div></div>
+
+  <!-- #3014 -->
+  <div class="card" id="card-20260603-3014">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3014 <span class="badge-status" id="badge-20260603-3014"></span></div>
+        <div class="customer-name">Yassine Lachhab</div>
+        <div class="customer-city">📍 Residence Jnane Errahma Anassi<br>Casablanca, Maroc</div>
+        <div class="customer-phone">📞 +212608249787</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212608249787?text=Salam%20Yassine%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233014%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20Chic%20Textur%C3%A9%20%E2%80%93%20Beige%0A%E2%80%A2%20Sac%20Chic%20Textur%C3%A9%20%E2%80%93%20Marron%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_18_mai_2026_03_20_19.png?v=1779070830&width=150" alt=""><span class="item-name">🛍 Sac Chic Texturé – Beige</span></div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_18_mai_2026_03_20_19.png?v=1779070830&width=150" alt=""><span class="item-name">🛍 Sac Chic Texturé – Marron</span></div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260603','3014','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3014','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3014','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3014','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260603-3014" placeholder="＋ Remarque..." onblur="saveNote('20260603','3014')" oninput="onNoteInput('20260603','3014')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3014">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3015 -->
+  <div class="card" id="card-20260603-3015">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3015 <span class="badge-status" id="badge-20260603-3015"></span></div>
+        <div class="customer-name">Widad</div>
+        <div class="customer-city">📍 Casa<br>Casablanca, Maroc</div>
+        <div class="customer-phone">📞 +212663548135</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212663548135?text=Salam%20Widad%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233015%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20bandouli%C3%A8re%20%C3%A9l%C3%A9gant%20Mod%C3%A8le%20Milano%20%E2%80%93%20Marron%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_3_fevr_2026_02_24_05_V2.jpg?v=1778362350&width=150" alt=""><span class="item-name">🛍 Sac bandoulière élégant Modèle Milano – Marron</span></div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260603','3015','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3015','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3015','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3015','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260603-3015" placeholder="＋ Remarque..." onblur="saveNote('20260603','3015')" oninput="onNoteInput('20260603','3015')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3015">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3016 -->
+  <div class="card" id="card-20260603-3016">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3016 <span class="badge-status" id="badge-20260603-3016"></span></div>
+        <div class="customer-name">Hafsa</div>
+        <div class="customer-city">📍 Benslimane hay lalla meriem bloc d<br>Benslimane, Maroc</div>
+        <div class="customer-phone">📞 0726570805</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212726570805?text=Salam%20Hafsa%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233016%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20Chic%20Textur%C3%A9%20%E2%80%93%20Bordeaux%0A%E2%80%A2%20Mod%C3%A8le%20Stella%20Classique%20%E2%80%93%20Cremy%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_18_mai_2026_03_20_19.png?v=1779070830&width=150" alt=""><span class="item-name">🛍 Sac Chic Texturé – Bordeaux</span></div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPTImage2mars2026_03_49_35.png?v=1775273400&width=150" alt=""><span class="item-name">🛍 Modèle Stella Classique – Cremy</span></div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260603','3016','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3016','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3016','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3016','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260603-3016" placeholder="＋ Remarque..." onblur="saveNote('20260603','3016')" oninput="onNoteInput('20260603','3016')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3016">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3017 -->
+  <div class="card" id="card-20260603-3017">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3017 <span class="badge-status" id="badge-20260603-3017"></span></div>
+        <div class="customer-name">Siham</div>
+        <div class="customer-city">📍 Route aine chekef<br>Fès, Maroc</div>
+        <div class="customer-phone">📞 +212623943036</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212623943036?text=Salam%20Siham%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233017%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20%C3%89l%C3%A9gance%20Signature%20%E2%80%93%20Beige%0A%E2%80%A2%20Sac%20Julia%20Luxe%20%E2%80%93%20Camel%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPTImage13mars2026_20_14_26.png?v=1778362481&width=150" alt=""><span class="item-name">🛍 Sac Élégance Signature – Beige</span></div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_6_avr_2026_04_33_44_V8.jpg?v=1778361981&width=150" alt=""><span class="item-name">🛍 Sac Julia Luxe – Camel</span></div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260603','3017','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3017','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3017','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3017','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260603-3017" placeholder="＋ Remarque..." onblur="saveNote('20260603','3017')" oninput="onNoteInput('20260603','3017')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3017">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3018 -->
+  <div class="card" id="card-20260603-3018">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3018 <span class="badge-status" id="badge-20260603-3018"></span></div>
+        <div class="customer-name">Nisrine El Fahfouhi</div>
+        <div class="customer-city">📍 Jinan 1 I 41 ain chkaf moulay yaacoub<br>Fès, Maroc</div>
+        <div class="customer-phone">📞 +212626100092</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212626100092?text=Salam%20Nisrine%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233018%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Mod%C3%A8le%20Stella%20Classique%20%E2%80%93%20Bordeaux%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPTImage2mars2026_03_49_35.png?v=1775273400&width=150" alt=""><span class="item-name">🛍 Modèle Stella Classique – Bordeaux</span></div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260603','3018','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3018','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3018','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3018','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260603-3018" placeholder="＋ Remarque..." onblur="saveNote('20260603','3018')" oninput="onNoteInput('20260603','3018')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3018">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3019 -->
+  <div class="card" id="card-20260603-3019">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3019 <span class="badge-status" id="badge-20260603-3019"></span></div>
+        <div class="customer-name">Ibtissam Fettah</div>
+        <div class="customer-city">📍 Zone industrielle -lot.19 berrechid<br>Berrechid, Maroc</div>
+        <div class="customer-phone">📞 +212663862967</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212663862967?text=Salam%20Ibtissam%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233019%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20Julia%20Luxe%20%E2%80%93%20Marron%0A%E2%80%A2%20Sac%20Julia%20Luxe%20%E2%80%93%20Blanc%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_6_avr_2026_04_33_44_V8.jpg?v=1778361981&width=150" alt=""><span class="item-name">🛍 Sac Julia Luxe – Marron</span></div>
+    <div class="item-row"><img class="item-img" src="https://ideer.store/cdn/shop/files/ChatGPT_Image_6_avr_2026_04_33_44_V8.jpg?v=1778361981&width=150" alt=""><span class="item-name">🛍 Sac Julia Luxe – Blanc</span></div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260603','3019','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3019','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260603','3019','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260603','3019','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260603-3019" placeholder="＋ Remarque..." onblur="saveNote('20260603','3019')" oninput="onNoteInput('20260603','3019')"></textarea>
+      <span class="saved-badge" id="saved-20260603-3019">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <button class="reset-btn" onclick="resetDay('20260603')">🗑 Réinitialiser 3 juin</button>
+</div>
+<!-- FIN JOURNÉE 3 JUIN -->
+
+<!-- ======================================================= -->
+<!-- NOUVELLES JOURNÉES : COLLER LE BLOC ICI EN DESSOUS     -->
+<!-- ======================================================= -->
+
+<div class="footer" style="padding:14px">ideer.store · Outil de confirmation interne</div>
+
+<script>
+const STATUS_CFG = {
+  confirmed: { label:'✅ Confirmée',      cls:'active-confirmed', bg:'#d1fae5', color:'#065f46', border:'#6ee7b7' },
+  no_answer: { label:'📵 Pas de réponse', cls:'active-no_answer', bg:'#fef3c7', color:'#92400e', border:'#fcd34d' },
+  cancelled:  { label:'❌ Annulée',        cls:'active-cancelled',  bg:'#fee2e2', color:'#991b1b', border:'#fca5a5' },
+  callback:   { label:'🔁 Rappeler',       cls:'active-callback',   bg:'#ede9fe', color:'#4c1d95', border:'#c4b5fd' },
+};
+const STATUS_KEYS = ['confirmed','no_answer','cancelled','callback'];
+
+function key(day, order) { return 'ideer_' + day + '_' + order; }
+function getState(day, order) { try { return JSON.parse(localStorage.getItem(key(day,order)) || '{}'); } catch(e) { return {}; } }
+function saveState(day, order, data) { try { localStorage.setItem(key(day,order), JSON.stringify(data)); } catch(e) {} }
+
+function setStatus(day, order, s) {
+  const st = getState(day, order);
+  st.status = st.status === s ? null : s;
+  saveState(day, order, st);
+  applyCard(day, order);
+  updateStats(day);
+}
+
+function saveNote(day, order) {
+  const val = document.getElementById('note-' + day + '-' + order).value;
+  const st = getState(day, order);
+  st.note = val;
+  saveState(day, order, st);
+  const b = document.getElementById('saved-' + day + '-' + order);
+  b.classList.add('show');
+  setTimeout(() => b.classList.remove('show'), 1500);
+}
+
+function onNoteInput(day, order) {
+  const ta = document.getElementById('note-' + day + '-' + order);
+  ta.classList.toggle('has-note', ta.value.length > 0);
+}
+
+function applyCard(day, order) {
+  const st = getState(day, order);
+  const card = document.getElementById('card-' + day + '-' + order);
+  if (!card) return;
+  const btns = card.querySelectorAll('.status-btn');
+  btns.forEach((btn, i) => {
+    btn.className = 'status-btn';
+    if (st.status === STATUS_KEYS[i]) btn.classList.add('active-' + STATUS_KEYS[i]);
+  });
+  card.style.borderColor = st.status && STATUS_CFG[st.status] ? STATUS_CFG[st.status].border : '#27272a';
+  const badge = document.getElementById('badge-' + day + '-' + order);
+  if (st.status && STATUS_CFG[st.status]) {
+    const c = STATUS_CFG[st.status];
+    badge.textContent = c.label;
+    badge.style.cssText = `background:${c.bg};color:${c.color};padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600`;
+  } else { badge.textContent = ''; badge.style.cssText = ''; }
+  const ta = document.getElementById('note-' + day + '-' + order);
+  if (ta && st.note) { ta.value = st.note; ta.classList.add('has-note'); }
+}
+
+function updateStats(day) {
+  const panel = document.getElementById('day-' + day);
+  if (!panel) return;
+  const cards = panel.querySelectorAll('.card');
+  let pending = 0, confirmed = 0, other = 0;
+  cards.forEach(card => {
+    const id = card.id.replace('card-' + day + '-', '');
+    const s = getState(day, id).status;
+    if (!s) pending++;
+    else if (s === 'confirmed') confirmed++;
+    else other++;
+  });
+  const total = cards.length;
+  document.getElementById('cnt-' + day + '-pending').textContent = pending;
+  document.getElementById('cnt-' + day + '-confirmed').textContent = confirmed;
+  document.getElementById('cnt-' + day + '-other').textContent = other;
+  document.getElementById('prog-' + day).style.width = Math.round(((total - pending) / total) * 100) + '%';
+}
+
+function resetDay(day) {
+  if (!confirm('Réinitialiser toutes les données du ' + day + ' ?')) return;
+  const panel = document.getElementById('day-' + day);
+  panel.querySelectorAll('.card').forEach(card => {
+    const id = card.id.replace('card-' + day + '-', '');
+    localStorage.removeItem(key(day, id));
+  });
+  location.reload();
+}
+
+function showDay(day) {
+  document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('day-' + day).classList.add('active');
+  event.target.classList.add('active');
+  initDay(day);
+}
+
+function initDay(day) {
+  const panel = document.getElementById('day-' + day);
+  if (!panel) return;
+  panel.querySelectorAll('.card').forEach(card => {
+    const id = card.id.replace('card-' + day + '-', '');
+    applyCard(day, id);
+  });
+  updateStats(day);
+}
+
+// PASSWORD
+function checkPwd() {
+  const val = document.getElementById("pwd-input").value;
+  if (val === "awatif10") {
+    localStorage.setItem("ideer_auth","1");
+    document.getElementById("login-screen").style.display="none";
+  } else {
+    document.getElementById("pwd-error").textContent = "❌ Mot de passe incorrect";
+    document.getElementById("pwd-input").value="";
+    setTimeout(()=>document.getElementById("pwd-error").textContent="",2000);
+  }
+}
+document.getElementById("pwd-input").addEventListener("keydown",e=>{ if(e.key==="Enter") checkPwd(); });
+if (localStorage.getItem("ideer_auth")==="1") {
+  document.getElementById("login-screen").style.display="none";
+}
+
+// Init visible day on load
+initDay('20260603');
+</script>
+</body>
+</html>
