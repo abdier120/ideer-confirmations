@@ -8,34 +8,43 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-height: 100vh; }
 
-/* HEADER */
 .header { text-align: center; padding: 18px 14px 10px; position: sticky; top: 0; background: #0d0d0d; z-index: 10; border-bottom: 1px solid #1c1c1c; }
 .header-sub { font-size: 10px; letter-spacing: 4px; color: #a78bfa; text-transform: uppercase; margin-bottom: 3px; }
 .header h1 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
 
-/* DATE TABS */
 .tabs { display: flex; gap: 6px; overflow-x: auto; padding: 0 2px 2px; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
-  flex-shrink: 0;
-  padding: 6px 14px;
-  border-radius: 99px;
-  border: 1px solid #27272a;
-  background: #18181b;
-  color: #9ca3af;
-  font-size: 12px;
-  cursor: pointer;
-  font-family: Georgia, serif;
-  white-space: nowrap;
-  transition: all .2s;
+  flex-shrink: 0; position: relative;
+  padding: 6px 14px; border-radius: 99px;
+  border: 1px solid #27272a; background: #18181b;
+  color: #9ca3af; font-size: 12px; cursor: pointer;
+  font-family: Georgia, serif; white-space: nowrap; transition: all .2s;
 }
 .tab.active { background: #a78bfa; color: #fff; border-color: #a78bfa; }
+.tab.archived { opacity: 0.4; text-decoration: line-through; }
 
-/* CONTENT */
+/* Pastille sur onglet */
+.tab-badge {
+  position: absolute; top: -5px; right: -5px;
+  min-width: 18px; height: 18px; border-radius: 99px;
+  font-size: 10px; font-weight: 700; line-height: 18px;
+  text-align: center; padding: 0 4px;
+  border: 2px solid #0d0d0d;
+}
+.tab-badge.pending { background: #fbbf24; color: #000; }
+.tab-badge.done    { background: #34d399; color: #000; }
+.tab-badge.zero    { display: none; }
+
 .day-panel { display: none; padding: 14px; }
 .day-panel.active { display: block; }
 
-/* STATS */
+.archived-banner {
+  background: #1c1c1c; border: 1px solid #3f3f46;
+  border-radius: 12px; padding: 20px; text-align: center;
+  color: #6b7280; font-size: 13px; margin-top: 10px;
+}
+
 .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
 .stat { background: #18181b; border: 1px solid #27272a; border-radius: 10px; padding: 10px 6px; text-align: center; }
 .stat-num { font-size: 20px; font-weight: 700; }
@@ -44,7 +53,6 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .progress-wrap { background: #27272a; border-radius: 99px; height: 5px; margin-bottom: 16px; overflow: hidden; }
 .progress-bar { height: 100%; background: linear-gradient(90deg,#a78bfa,#34d399); border-radius: 99px; transition: width .4s; }
 
-/* CARD */
 .card { background: #18181b; border: 1px solid #27272a; border-radius: 14px; padding: 13px; margin-bottom: 12px; transition: border-color .3s; }
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
 .order-id { color: #a78bfa; font-size: 11px; font-weight: 600; letter-spacing: 1px; }
@@ -91,13 +99,53 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 
 .badge-status { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px; margin-left: 6px; vertical-align: middle; }
 
-.reset-btn { display: block; margin: 4px auto 16px; background: transparent; border: 1px solid #3f3f46; border-radius: 8px; padding: 7px 16px; color: #6b7280; font-size: 11px; cursor: pointer; font-family: Georgia, serif; }
-.footer { text-align: center; color: #374151; font-size: 11px; padding-bottom: 24px; }
+.action-btns { display: flex; gap: 8px; margin-top: 4px; }
+.reset-btn {
+  flex: 1; background: transparent; border: 1px solid #3f3f46;
+  border-radius: 8px; padding: 9px; color: #6b7280;
+  font-size: 11px; cursor: pointer; font-family: Georgia, serif;
+}
+.archive-btn {
+  flex: 1; background: transparent; border: 1px solid #a78bfa;
+  border-radius: 8px; padding: 9px; color: #a78bfa;
+  font-size: 11px; cursor: pointer; font-family: Georgia, serif;
+  font-weight: 600;
+}
+
+.footer { text-align: center; color: #374151; font-size: 11px; padding: 16px 0 24px; }
+
+/* SEARCH */
+.search-wrap { padding: 10px 14px 0; }
+.search-input {
+  width: 100%; background: #18181b; border: 1px solid #27272a;
+  border-radius: 10px; padding: 10px 14px 10px 36px;
+  color: #f5f0eb; font-size: 13px; font-family: Georgia, serif;
+  outline: none; transition: border-color .2s;
+}
+.search-input:focus { border-color: #a78bfa; }
+.search-icon { position: absolute; left: 26px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+.search-container { position: relative; }
+.search-results {
+  display: none; position: fixed; inset: 0; background: #0d0d0d;
+  z-index: 50; overflow-y: auto; padding: 14px;
+}
+.search-results.active { display: block; }
+.search-results-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.search-results-title { font-size: 15px; font-weight: 700; color: #f5f0eb; }
+.search-close {
+  background: #18181b; border: 1px solid #27272a; border-radius: 8px;
+  padding: 6px 12px; color: #9ca3af; font-size: 12px;
+  cursor: pointer; font-family: Georgia, serif;
+}
+.search-empty { text-align: center; color: #6b7280; font-size: 13px; padding: 40px 0; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="login-screen" style="position:fixed;inset:0;background:#0d0d0d;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px">
   <div style="font-size:10px;letter-spacing:4px;color:#a78bfa;text-transform:uppercase;margin-bottom:8px">Ideer Store</div>
   <div style="font-size:22px;font-weight:700;color:#f5f0eb;margin-bottom:4px">Confirmations</div>
@@ -111,18 +159,39 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
   <div class="header-sub">Ideer Store</div>
   <h1>Confirmations</h1>
   <div class="tabs" id="tabs-container">
-    <button class="tab active" onclick="showDay('20260603')">3 juin 2026</button>
+    <button class="tab active" id="tab-20260603" onclick="showDay('20260603',this)">
+      3 juin – Matin
+      <span class="tab-badge pending" id="tbadge-20260603">6</span>
+    </button>
+    <button class="tab" id="tab-20260603B" onclick="showDay('20260603B',this)">
+      3 juin – Soir
+      <span class="tab-badge pending" id="tbadge-20260603B">7</span>
+    </button>
     <!-- NOUVELLES DATES ICI -->
-    <button class="tab" onclick="showDay('20260603B')">3 juin – Soir</button>
-
   </div>
 </div>
 
-<!-- ======================================================= -->
-<!-- JOURNÉE : 3 JUIN 2026                                   -->
-<!-- ======================================================= -->
-<div class="day-panel active" id="day-20260603">
+<!-- SEARCH BAR -->
+<div class="search-wrap">
+  <div class="search-container">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="search-input" type="text" placeholder="Chercher par nom ou téléphone..." oninput="doSearch(this.value)">
+  </div>
+</div>
 
+<!-- SEARCH RESULTS OVERLAY -->
+<div class="search-results" id="search-results">
+  <div class="search-results-header">
+    <div class="search-results-title" id="search-results-title">Résultats</div>
+    <button class="search-close" onclick="closeSearch()">✕ Fermer</button>
+  </div>
+  <div id="search-results-body"></div>
+</div>
+
+<!-- ===================================================== -->
+<!-- JOURNÉE : 3 JUIN – MATIN                              -->
+<!-- ===================================================== -->
+<div class="day-panel active" id="day-20260603">
   <div class="stats">
     <div class="stat"><div class="stat-num" id="cnt-20260603-pending" style="color:#9ca3af">6</div><div class="stat-label">En attente</div></div>
     <div class="stat"><div class="stat-num" id="cnt-20260603-confirmed" style="color:#34d399">0</div><div class="stat-label">Confirmées</div></div>
@@ -278,14 +347,17 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     </div>
   </div>
 
-  <button class="reset-btn" onclick="resetDay('20260603')">🗑 Réinitialiser 3 juin</button>
+  <div class="action-btns">
+    <button class="reset-btn" onclick="resetDay('20260603')">🗑 Réinitialiser</button>
+    <button class="archive-btn" onclick="archiveDay('20260603')">📦 Archiver la journée</button>
+  </div>
 </div>
-<!-- FIN JOURNÉE 3 JUIN -->
-<!-- ======================================================= -->
-<!-- JOURNÉE : 3 JUIN 2026 – SOIR (#3020 à #3026)           -->
-<!-- ======================================================= -->
-<div class="day-panel" id="day-20260603B">
+<!-- FIN 3 JUIN MATIN -->
 
+<!-- ===================================================== -->
+<!-- JOURNÉE : 3 JUIN – SOIR                               -->
+<!-- ===================================================== -->
+<div class="day-panel" id="day-20260603B">
   <div class="stats">
     <div class="stat"><div class="stat-num" id="cnt-20260603B-pending" style="color:#9ca3af">7</div><div class="stat-label">En attente</div></div>
     <div class="stat"><div class="stat-num" id="cnt-20260603B-confirmed" style="color:#34d399">0</div><div class="stat-label">Confirmées</div></div>
@@ -463,15 +535,16 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     </div>
   </div>
 
-  <button class="reset-btn" onclick="resetDay('20260603B')">🗑 Réinitialiser 3 juin soir</button>
+  <div class="action-btns">
+    <button class="reset-btn" onclick="resetDay('20260603B')">🗑 Réinitialiser</button>
+    <button class="archive-btn" onclick="archiveDay('20260603B')">📦 Archiver la journée</button>
+  </div>
 </div>
-<!-- FIN JOURNÉE 3 JUIN SOIR -->
+<!-- FIN 3 JUIN SOIR -->
 
-<!-- ======================================================= -->
-<!-- NOUVELLES JOURNÉES : COLLER LE BLOC ICI EN DESSOUS     -->
-<!-- ======================================================= -->
+<!-- NOUVELLES JOURNÉES : COLLER LE BLOC ICI EN DESSOUS -->
 
-<div class="footer" style="padding:14px">ideer.store · Outil de confirmation interne</div>
+<div class="footer">ideer.store · Outil de confirmation interne</div>
 
 <script>
 const STATUS_CFG = {
@@ -482,9 +555,10 @@ const STATUS_CFG = {
 };
 const STATUS_KEYS = ['confirmed','no_answer','cancelled','callback'];
 
-function key(day, order) { return 'ideer_' + day + '_' + order; }
-function getState(day, order) { try { return JSON.parse(localStorage.getItem(key(day,order)) || '{}'); } catch(e) { return {}; } }
-function saveState(day, order, data) { try { localStorage.setItem(key(day,order), JSON.stringify(data)); } catch(e) {} }
+function lsKey(day, order) { return 'ideer_' + day + '_' + order; }
+function archKey(day) { return 'ideer_arch_' + day; }
+function getState(day, order) { try { return JSON.parse(localStorage.getItem(lsKey(day,order)) || '{}'); } catch(e) { return {}; } }
+function saveState(day, order, data) { try { localStorage.setItem(lsKey(day,order), JSON.stringify(data)); } catch(e) {} }
 
 function setStatus(day, order, s) {
   const st = getState(day, order);
@@ -492,6 +566,7 @@ function setStatus(day, order, s) {
   saveState(day, order, st);
   applyCard(day, order);
   updateStats(day);
+  updateTabBadge(day);
 }
 
 function saveNote(day, order) {
@@ -520,80 +595,180 @@ function applyCard(day, order) {
   });
   card.style.borderColor = st.status && STATUS_CFG[st.status] ? STATUS_CFG[st.status].border : '#27272a';
   const badge = document.getElementById('badge-' + day + '-' + order);
-  if (st.status && STATUS_CFG[st.status]) {
-    const c = STATUS_CFG[st.status];
-    badge.textContent = c.label;
-    badge.style.cssText = `background:${c.bg};color:${c.color};padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600`;
-  } else { badge.textContent = ''; badge.style.cssText = ''; }
+  if (badge) {
+    if (st.status && STATUS_CFG[st.status]) {
+      const c = STATUS_CFG[st.status];
+      badge.textContent = c.label;
+      badge.style.cssText = `background:${c.bg};color:${c.color};padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600`;
+    } else { badge.textContent = ''; badge.style.cssText = ''; }
+  }
   const ta = document.getElementById('note-' + day + '-' + order);
   if (ta && st.note) { ta.value = st.note; ta.classList.add('has-note'); }
 }
 
-function updateStats(day) {
+function getOrderIds(day) {
   const panel = document.getElementById('day-' + day);
-  if (!panel) return;
-  const cards = panel.querySelectorAll('.card');
+  if (!panel) return [];
+  return Array.from(panel.querySelectorAll('.card')).map(c => c.id.replace('card-' + day + '-', ''));
+}
+
+function updateStats(day) {
+  const ids = getOrderIds(day);
   let pending = 0, confirmed = 0, other = 0;
-  cards.forEach(card => {
-    const id = card.id.replace('card-' + day + '-', '');
+  ids.forEach(id => {
     const s = getState(day, id).status;
     if (!s) pending++;
     else if (s === 'confirmed') confirmed++;
     else other++;
   });
-  const total = cards.length;
-  document.getElementById('cnt-' + day + '-pending').textContent = pending;
-  document.getElementById('cnt-' + day + '-confirmed').textContent = confirmed;
-  document.getElementById('cnt-' + day + '-other').textContent = other;
-  document.getElementById('prog-' + day).style.width = Math.round(((total - pending) / total) * 100) + '%';
+  const el = (id) => document.getElementById(id);
+  if (el('cnt-'+day+'-pending'))   el('cnt-'+day+'-pending').textContent   = pending;
+  if (el('cnt-'+day+'-confirmed')) el('cnt-'+day+'-confirmed').textContent = confirmed;
+  if (el('cnt-'+day+'-other'))     el('cnt-'+day+'-other').textContent     = other;
+  const total = ids.length;
+  const prog = el('prog-' + day);
+  if (prog) prog.style.width = total ? Math.round(((total-pending)/total)*100)+'%' : '0%';
 }
 
-function resetDay(day) {
-  if (!confirm('Réinitialiser toutes les données du ' + day + ' ?')) return;
+function updateTabBadge(day) {
+  const ids = getOrderIds(day);
+  const badge = document.getElementById('tbadge-' + day);
+  if (!badge) return;
+  const pending = ids.filter(id => !getState(day, id).status).length;
+  if (pending === 0) {
+    badge.textContent = '✓';
+    badge.className = 'tab-badge done';
+  } else {
+    badge.textContent = pending;
+    badge.className = 'tab-badge pending';
+  }
+}
+
+function archiveDay(day) {
+  if (!confirm('Archiver cette journée ? Elle restera visible mais masquée.')) return;
+  localStorage.setItem(archKey(day), '1');
+  applyArchive(day);
+}
+
+function applyArchive(day) {
+  const isArchived = localStorage.getItem(archKey(day)) === '1';
   const panel = document.getElementById('day-' + day);
-  panel.querySelectorAll('.card').forEach(card => {
-    const id = card.id.replace('card-' + day + '-', '');
-    localStorage.removeItem(key(day, id));
-  });
+  const tab = document.getElementById('tab-' + day);
+  if (!panel || !tab) return;
+  if (isArchived) {
+    tab.classList.add('archived');
+    const badge = document.getElementById('tbadge-' + day);
+    if (badge) badge.className = 'tab-badge zero';
+    // Replace panel content with banner
+    const cards = panel.querySelectorAll('.card');
+    cards.forEach(c => c.style.display = 'none');
+    const existing = panel.querySelector('.archived-banner');
+    if (!existing) {
+      const banner = document.createElement('div');
+      banner.className = 'archived-banner';
+      banner.innerHTML = '📦 Journée archivée<br><small style="font-size:11px;margin-top:6px;display:block">Les commandes sont conservées mais masquées</small><button onclick="unarchiveDay(\'' + day + '\')" style="margin-top:12px;background:transparent;border:1px solid #6b7280;border-radius:8px;padding:6px 14px;color:#9ca3af;font-size:11px;cursor:pointer;font-family:Georgia,serif">Désarchiver</button>';
+      panel.insertBefore(banner, panel.querySelector('.action-btns'));
+    }
+  }
+}
+
+function unarchiveDay(day) {
+  localStorage.removeItem(archKey(day));
   location.reload();
 }
 
-function showDay(day) {
+function resetDay(day) {
+  if (!confirm('Réinitialiser toutes les données de cette journée ?')) return;
+  getOrderIds(day).forEach(id => localStorage.removeItem(lsKey(day, id)));
+  location.reload();
+}
+
+function showDay(day, el) {
   document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('day-' + day).classList.add('active');
-  event.target.classList.add('active');
+  el.classList.add('active');
   initDay(day);
 }
 
 function initDay(day) {
-  const panel = document.getElementById('day-' + day);
-  if (!panel) return;
-  panel.querySelectorAll('.card').forEach(card => {
-    const id = card.id.replace('card-' + day + '-', '');
-    applyCard(day, id);
-  });
+  getOrderIds(day).forEach(id => applyCard(day, id));
   updateStats(day);
+  updateTabBadge(day);
+  applyArchive(day);
 }
 
 // PASSWORD
 function checkPwd() {
-  const val = document.getElementById("pwd-input").value;
-  if (val === "awatif10") {
-    localStorage.setItem("ideer_auth","1");
-    document.getElementById("login-screen").style.display="none";
+  if (document.getElementById('pwd-input').value === 'awatif10') {
+    localStorage.setItem('ideer_auth','1');
+    document.getElementById('login-screen').style.display='none';
   } else {
-    document.getElementById("pwd-error").textContent = "❌ Mot de passe incorrect";
-    document.getElementById("pwd-input").value="";
-    setTimeout(()=>document.getElementById("pwd-error").textContent="",2000);
+    document.getElementById('pwd-error').textContent = '❌ Mot de passe incorrect';
+    document.getElementById('pwd-input').value='';
+    setTimeout(()=>document.getElementById('pwd-error').textContent='',2000);
   }
 }
-document.getElementById("pwd-input").addEventListener("keydown",e=>{ if(e.key==="Enter") checkPwd(); });
-if (localStorage.getItem("ideer_auth")==="1") {
-  document.getElementById("login-screen").style.display="none";
+document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPwd(); });
+if (localStorage.getItem('ideer_auth')==='1') document.getElementById('login-screen').style.display='none';
+
+// SEARCH
+const ALL_ORDERS = [
+  { day:'20260603',  id:'3014', name:'Yassine Lachhab',    phone:'+212608249787', city:'Casablanca',  items:['Sac Chic Texturé – Beige','Sac Chic Texturé – Marron'] },
+  { day:'20260603',  id:'3015', name:'Widad',              phone:'+212663548135', city:'Casablanca',  items:['Sac bandoulière élégant Modèle Milano – Marron'] },
+  { day:'20260603',  id:'3016', name:'Hafsa',              phone:'0726570805',    city:'Benslimane',  items:['Sac Chic Texturé – Bordeaux','Modèle Stella Classique – Cremy'] },
+  { day:'20260603',  id:'3017', name:'Siham',              phone:'+212623943036', city:'Fès',         items:['Sac Élégance Signature – Beige','Sac Julia Luxe – Camel'] },
+  { day:'20260603',  id:'3018', name:'Nisrine El Fahfouhi',phone:'+212626100092', city:'Fès',         items:['Modèle Stella Classique – Bordeaux'] },
+  { day:'20260603',  id:'3019', name:'Ibtissam Fettah',    phone:'+212663862967', city:'Berrechid',   items:['Sac Julia Luxe – Marron','Sac Julia Luxe – Blanc'] },
+  { day:'20260603B', id:'3020', name:'حنان العطري',         phone:'+212648555115', city:'طنجة',        items:['Sac bandoulière élégant Modèle Milano – Noir'] },
+  { day:'20260603B', id:'3021', name:'Zoubaa Houda',       phone:'+212663455141', city:'Meknès',      items:['Sac Élégance Dorée – Cremy'] },
+  { day:'20260603B', id:'3022', name:'Hala',               phone:'+212603653943', city:'Temara',      items:['Sac Chic Texturé – Camel'] },
+  { day:'20260603B', id:'3023', name:'Bouchra',            phone:'+212608898816', city:'Casablanca',  items:['Sac Élégance Dorée – Noir'] },
+  { day:'20260603B', id:'3024', name:'زينب المرشاني',       phone:'+212646173697', city:'تمارة',       items:['Sac Julia Luxe – Cremy'] },
+  { day:'20260603B', id:'3025', name:'Ouafae',             phone:'+212697351177', city:'Ifrane',      items:['Sac Bandoulière Style Élégant – Marron','Sac Élégance Dorée – Bordeaux'] },
+  { day:'20260603B', id:'3026', name:'نرجس العلمي',         phone:'+212717079107', city:'Salé',        items:['Sac Chic Texturé – Nude','Sac Chic Texturé – Camel'] },
+];
+
+function doSearch(q) {
+  const overlay = document.getElementById('search-results');
+  const body = document.getElementById('search-results-body');
+  const title = document.getElementById('search-results-title');
+  q = q.trim().toLowerCase();
+  if (q.length < 2) { overlay.classList.remove('active'); return; }
+  overlay.classList.add('active');
+  const results = ALL_ORDERS.filter(o =>
+    o.name.toLowerCase().includes(q) ||
+    o.phone.replace(/\s/g,'').includes(q.replace(/\s/g,''))
+  );
+  title.textContent = results.length + ' résultat' + (results.length !== 1 ? 's' : '');
+  if (results.length === 0) {
+    body.innerHTML = '<div class="search-empty">Aucun client trouvé</div>';
+    return;
+  }
+  body.innerHTML = results.map(o => {
+    const st = getState(o.day, o.id);
+    const cfg = st.status ? STATUS_CFG[st.status] : null;
+    const badgeHTML = cfg ? `<span style="background:${cfg.bg};color:${cfg.color};padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;margin-left:6px">${cfg.label}</span>` : '';
+    const dayLabel = o.day === '20260603' ? '3 juin – Matin' : o.day === '20260603B' ? '3 juin – Soir' : o.day;
+    return `
+    <div style="background:#18181b;border:1px solid ${cfg ? cfg.border : '#27272a'};border-radius:14px;padding:13px;margin-bottom:10px">
+      <div style="font-size:10px;color:#a78bfa;font-weight:600;letter-spacing:1px;margin-bottom:4px">#${o.id} · ${dayLabel} ${badgeHTML}</div>
+      <div style="font-size:15px;font-weight:700">${o.name}</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:2px">📍 ${o.city}</div>
+      <div style="font-size:11px;color:#a78bfa;margin-top:1px">📞 ${o.phone}</div>
+      <div style="margin:8px 0">${o.items.map(i=>`<div style="font-size:12px;color:#d1d5db;background:#0d0d0d;border-radius:6px;padding:5px 8px;margin-bottom:4px">🛍 ${i}</div>`).join('')}</div>
+      <a href="https://wa.me/${o.phone.replace(/\D/g,'').replace(/^0/,'212')}?text=Salam%20${encodeURIComponent(o.name.split(' ')[0])}%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%23${o.id}%20chez%20*Ideer%20Store*%20!" style="display:inline-flex;align-items:center;gap:6px;background:#22c55e;color:#fff;border-radius:8px;padding:8px 14px;text-decoration:none;font-size:12px;font-weight:600">💬 Ouvrir WhatsApp</a>
+    </div>`;
+  }).join('');
 }
 
-// Init visible day on load
+function closeSearch() {
+  document.getElementById('search-results').classList.remove('active');
+  document.getElementById('search-input').value = '';
+}
+
+// INIT
+['20260603','20260603B'].forEach(d => initDay(d));
 initDay('20260603');
 </script>
 </body>
