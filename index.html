@@ -1479,6 +1479,169 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+
+// ====== MAPPING IMAGES PAR VARIANTE (couleur) ======
+const VARIANT_IMAGES = {
+  "Sac Softy – Modèle Daily Chic": {
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9mai2026_22_11_00.png?v=1778361705&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9mai2026_22_11_23.png?v=1778361784&width=150",
+    "camel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9mai2026_22_11_40.png?v=1778361818&width=150",
+    "marron chocolat": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9mai2026_22_11_33.png?v=1778361854&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_17_13_06.png?v=1778516067&width=150",
+    "marron": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_16_mai_2026_03_03_47_1.png?v=1778897058&width=150",
+  },
+  "Sac Chic Texturé": {
+    "vert olive": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_02_56_49.png?v=1779069447&width=150",
+    "bleu ciel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_02_57_53.png?v=1779069483&width=150",
+    "nude": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_00_03.png?v=1779069632&width=150",
+    "blanc": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_02_37.png?v=1779069781&width=150",
+    "rose": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_05_11.png?v=1779069927&width=150",
+    "marine": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_07_09.png?v=1779070042&width=150",
+    "marron": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_09_48.png?v=1779070200&width=150",
+    "cremy": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_11_43.png?v=1779070322&width=150",
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_14_04.png?v=1779070462&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_16_27.png?v=1779070600&width=150",
+    "camel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_34_19.png?v=1779071689&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_20_19.png?v=1779070830&width=150",
+  },
+  "Sac Élégance Dorée": {
+    "camel foncé": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_13_49.png?v=1776303068&width=150",
+    "marron": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_18_15.png?v=1776303068&width=150",
+    "cremy": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_21_10.png?v=1776303068&width=150",
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_26_35.png?v=1776303068&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_29_47.png?v=1776303068&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_31_43.png?v=1778361941&width=150",
+    "blanc": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_33_50.png?v=1775918518&width=150",
+  },
+  "Sac Julia Luxe": {
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_6_avr_2026_04_33_44_V8.jpg?v=1778361981&width=150",
+    "blanc": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_6_avr_2026_04_33_44_V9.jpg?v=1775448460&width=150",
+    "camel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_6_avr_2026_04_33_44_V7.jpg?v=1775448459&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_6_avr_2026_04_33_44_V2.jpg?v=1775448460&width=150",
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_6_avr_2026_04_33_44_V1_1.jpg?v=1775448460&width=150",
+    "marron": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_6_avr_2026_04_33_44_V5.jpg?v=1775448460&width=150",
+    "cremy": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_27_avr._2026_02_24_02.png?v=1777253105&width=150",
+  },
+  "Sac Stella Tweed": {
+    "noir tweed luxe": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_2_mars_2026_03_06_54.png?v=1778362119&width=150",
+    "crème élégant": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_02_56_39.png?v=1778362262&width=150",
+    "marron vintage": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_03_08.png?v=1775441685&width=150",
+    "crème soft": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_05_00.png?v=1775441685&width=150",
+    "bordeaux royal": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_06_05.png?v=1775441685&width=150",
+  },
+  "Sac bandoulière élégant – Modèle Milano": {
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr_2026_02_24_05_V2.jpg?v=1778362350&width=150",
+    "marron": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr_2026_02_24_05_V3.jpg?v=1775439224&width=150",
+    "beige grisé": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr_2026_02_24_05_V1.jpg?v=1775439224&width=150",
+    "camel foncé": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr_2026_02_24_05_V5_1.jpg?v=1775439224&width=150",
+  },
+  "Modèle Stella Classique": {
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_49_35.png?v=1775273400&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_36_12.png?v=1775273400&width=150",
+    "blanc": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_37_26.png?v=1775273400&width=150",
+    "marron": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_38_17.png?v=1775273400&width=150",
+    "cremy": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_44_10.png?v=1775273400&width=150",
+    "camel foncé": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_45_02.png?v=1775273400&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_03_46_35.png?v=1775273400&width=150",
+    "vert olive": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/IMG_5686.jpg?v=1778509534&width=150",
+    "gris": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_15_31_10.png?v=1778509897&width=150",
+    "rose bebe": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_15_45_51.png?v=1778510775&width=150",
+    "vert pastel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_15_54_03.png?v=1778511265&width=150",
+    "moutarde": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_16_01_30.png?v=1778511715&width=150",
+    "bleu ciel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_16_05_07.png?v=1778511927&width=150",
+  },
+  "Sac Bandoulière – Style Élégant": {
+    "marron": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr._2026_01_58_40.png?v=1778362445&width=150",
+    "cremy": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr._2026_02_00_30.png?v=1775272695&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr._2026_02_04_53.png?v=1775272695&width=150",
+    "camel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr._2026_02_06_14.png?v=1775272695&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr._2026_02_07_40.png?v=1775272695&width=150",
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_3_fevr._2026_02_10_21.png?v=1775272695&width=150",
+    "blanc": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/9a61ac7c-eb86-449a-b33c-f32b735c962a_fae33962-b605-4727-b35f-f911aaf70ca4.jpg?v=1777251767&width=150",
+  },
+  "Sac Élégance Signature": {
+    "camel foncé": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage13mars2026_20_14_26.png?v=1778362481&width=150",
+    "marron": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage13mars2026_20_21_36.png?v=1775269772&width=150",
+    "rose": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage13mars2026_20_24_24.png?v=1775269772&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage13mars2026_20_27_55.png?v=1775269772&width=150",
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage13mars2026_20_30_51.png?v=1775269772&width=150",
+    "blanc": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage13mars2026_20_31_55.png?v=1775269773&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage13mars2026_20_32_49.png?v=1775269772&width=150",
+    "cremy": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage13mars2026_20_33_46.png?v=1775269772&width=150",
+    "bleu ciel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_15_avr_2026_19_05_05_V1.jpg?v=1776276891&width=150",
+    "mauve": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_16_58_58.png?v=1778515155&width=150",
+    "vert olive": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_17_01_48.png?v=1778515326&width=150",
+  },
+  "Sac bandoulière femme élégant – Julia": {
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/WhatsApp_Image_2026_01_09_at_01_44_04_2_V2.jpg?v=1778362494&width=150",
+    "camel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/WhatsApp_Image_2026_01_09_at_01_44_04_2_V6.jpg?v=1775260959&width=150",
+    "blanc": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/WhatsApp_Image_2026_01_09_at_01_44_04_2_V4.jpg?v=1775237605&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_23_mars_2026_06_27_28.png?v=1775267751&width=150",
+    "rose": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_1_mars_2026_13_24_12.png?v=1775268543&width=150",
+    "cremy": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_2_fevr_2026_23_39_38_V5.jpg?v=1775268570&width=150",
+    "marron": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_2_fevr_2026_23_39_38_V2.jpg?v=1775268571&width=150",
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_2_fevr_2026_23_39_38_V3.jpg?v=1775268571&width=150",
+    "camel foncé": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_2_fevr_2026_23_39_38_V4.jpg?v=1775268571&width=150",
+    "vert": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/IMG_4215.jpg?v=1777251148&width=150",
+    "gris": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_16_45_07.png?v=1778514341&width=150",
+    "vert olive": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_11_mai_2026_16_49_08.png?v=1778514574&width=150",
+  },
+  "Sac Victoria Élégance": {
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage4juin2026_03_02_01.png?v=1780538734&width=150",
+    "blanc casse": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage4juin2026_02_57_24.png?v=1780538734&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage4juin2026_02_58_56.png?v=1780538734&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage4juin2026_03_00_35.png?v=1780538734&width=150",
+    "marron chocolat": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_4_juin_2026_03_10_28.png?v=1780539049&width=150",
+  },
+  "Sac Sofia Élégance": {
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage31mai2026_02_45_01.png?v=1780192010&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage31mai2026_02_41_06.png?v=1780192010&width=150",
+    "marron chocolat": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage30mai2026_04_33_22.png?v=1780192010&width=150",
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage30mai2026_04_31_45.png?v=1780192010&width=150",
+  },
+  "Sac Luna Élégance": {
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage30mai2026_02_41_57.png?v=1780107741&width=150",
+    "marron chocolat": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage30mai2026_02_15_19.png?v=1780107741&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage30mai2026_02_32_48.png?v=1780107741&width=150",
+    "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage30mai2026_02_30_31.png?v=1780107741&width=150",
+  },
+};
+
+// Normalise un nom de produit du PDF vers une clé du dictionnaire
+function findProductKey(itemName){
+  const n = itemName.toLowerCase();
+  if(n.includes('softy')||n.includes('daily chic')) return 'Sac Softy – Modèle Daily Chic';
+  if(n.includes('chic texturé')||n.includes('chic texture')) return 'Sac Chic Texturé';
+  if(n.includes('élégance dorée')||n.includes('elegance doree')) return 'Sac Élégance Dorée';
+  if(n.includes('julia luxe')) return 'Sac Julia Luxe';
+  if(n.includes('stella tweed')) return 'Sac Stella Tweed';
+  if(n.includes('milano')) return 'Sac bandoulière élégant – Modèle Milano';
+  if(n.includes('stella classique')) return 'Modèle Stella Classique';
+  if(n.includes('style élégant')||n.includes('style elegant')) return 'Sac Bandoulière – Style Élégant';
+  if(n.includes('élégance signature')||n.includes('elegance signature')) return 'Sac Élégance Signature';
+  if(n.includes('julia')) return 'Sac bandoulière femme élégant – Julia';
+  if(n.includes('victoria')) return 'Sac Victoria Élégance';
+  if(n.includes('sofia')) return 'Sac Sofia Élégance';
+  if(n.includes('luna')) return 'Sac Luna Élégance';
+  return null;
+}
+
+// Renvoie l'URL image pour un produit + couleur, sinon image par défaut
+function getVariantImage(itemName, color, fallback){
+  const key = findProductKey(itemName);
+  if(!key || !VARIANT_IMAGES[key]) return fallback;
+  const c = (color||'').toLowerCase().trim();
+  const map = VARIANT_IMAGES[key];
+  if(map[c]) return map[c];
+  // Recherche tolérante (ex: "camel foncé" vs "camel")
+  for(const k in map){ if(c.includes(k)||k.includes(c)) return map[k]; }
+  // Sinon première image du produit
+  return Object.values(map)[0] || fallback;
+}
+window.getVariantImage = getVariantImage;
+// ====== FIN MAPPING ======
+
+
 const STATUS_CFG = {
   confirmed: { label:'✅ Confirmée',      bg:'#d1fae5', color:'#065f46', border:'#6ee7b7' },
   no_answer: { label:'📵 Pas de réponse', bg:'#fef3c7', color:'#92400e', border:'#fcd34d' },
@@ -1645,7 +1808,24 @@ window.checkPwd=function(){
 };
 document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')window.checkPwd();});
 
-function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); }
+function fixVariantImages(){
+  document.querySelectorAll('.item-row').forEach(row=>{
+    const img = row.querySelector('.item-img');
+    const span = row.querySelector('.item-name');
+    if(!img || !span) return;
+    // texte du type "🛍 Nom du sac – Couleur"
+    let txt = span.textContent.replace('🛍','').trim();
+    // séparer sur le dernier tiret/– pour isoler la couleur
+    const parts = txt.split(/[–-]/);
+    if(parts.length < 2) return;
+    const color = parts[parts.length-1].trim();
+    const productName = parts.slice(0,-1).join('-').trim();
+    const newSrc = getVariantImage(productName, color, img.src);
+    if(newSrc && newSrc !== img.src) img.src = newSrc;
+  });
+}
+
+function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); }
 
 if(localStorage.getItem('ideer_auth')==='1'){ document.getElementById('login-screen').style.display='none'; initAll(); }
 </script>
