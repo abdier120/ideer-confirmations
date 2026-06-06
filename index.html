@@ -6,7 +6,7 @@
 <title>Ideer Store – Confirmations</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-height: 100vh; }
+body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-height: 100vh; overflow-x: hidden; max-width: 100vw; }
 .header { text-align: center; padding: 18px 14px 10px; position: sticky; top: 0; background: #0d0d0d; z-index: 10; border-bottom: 1px solid #1c1c1c; }
 .header-sub { font-size: 10px; letter-spacing: 4px; color: #a78bfa; text-transform: uppercase; margin-bottom: 3px; }
 .header h1 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
@@ -43,19 +43,21 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .stat-label { font-size:10px; color:#9ca3af; margin-top:2px; }
 .progress-wrap { background:#27272a; border-radius:99px; height:5px; margin-bottom:16px; overflow:hidden; }
 .progress-bar { height:100%; background:linear-gradient(90deg,#a78bfa,#34d399); border-radius:99px; transition:width .4s; }
-.card { background:#18181b; border:1px solid #27272a; border-radius:14px; padding:13px; margin-bottom:12px; transition:border-color .3s; }
+.card { background:#18181b; border:1px solid #27272a; border-radius:14px; padding:13px; margin-bottom:12px; transition:border-color .3s; overflow:hidden; width:100%; }
 .card.hidden { display:none; }
-.card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; gap:8px; }
+.card-top > div { min-width:0; flex:1; overflow:hidden; }
 .order-id { color:#a78bfa; font-size:11px; font-weight:600; letter-spacing:1px; }
-.customer-name { font-size:15px; font-weight:700; margin-top:2px; }
-.customer-city { color:#6b7280; font-size:11px; margin-top:2px; line-height:1.5; }
+.customer-name { font-size:15px; font-weight:700; margin-top:2px; word-break:break-word; overflow-wrap:anywhere; }
+.customer-city { color:#6b7280; font-size:11px; margin-top:2px; line-height:1.5; word-break:break-word; overflow-wrap:anywhere; }
 .customer-phone { color:#a78bfa; font-size:11px; margin-top:1px; }
-.wa-btn { background:#22c55e; color:#fff; border-radius:10px; width:46px; height:46px; font-size:22px; display:flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; margin-left:10px; box-shadow:0 0 14px rgba(34,197,94,.35); }
+.wa-btn { background:#22c55e; color:#fff; border-radius:10px; width:46px; height:46px; font-size:22px; display:flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; box-shadow:0 0 14px rgba(34,197,94,.35); }
 .item-row { display:flex; align-items:center; gap:8px; background:#0d0d0d; border-radius:8px; padding:6px 8px; margin-bottom:5px; }
 .item-img { width:44px; height:44px; object-fit:cover; border-radius:6px; flex-shrink:0; background:#1f1f1f; }
-.item-name { font-size:12px; color:#d1d5db; line-height:1.4; }
+.item-name { font-size:12px; color:#d1d5db; line-height:1.4; word-break:break-word; overflow-wrap:anywhere; min-width:0; flex:1; }
 .montant-box { background:#0d0d0d; border-radius:8px; padding:8px 10px; margin-bottom:10px; }
-.montant-line { display:flex; justify-content:space-between; font-size:12px; color:#9ca3af; margin-bottom:3px; }
+.montant-line { display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:12px; color:#9ca3af; margin-bottom:3px; }
+.montant-line span:first-child { word-break:break-word; overflow-wrap:anywhere; min-width:0; flex:1; }
 .montant-line.reduction { color:#34d399; }
 .montant-line.total { color:#f5f0eb; font-weight:700; font-size:13px; border-top:1px solid #27272a; padding-top:6px; margin-top:3px; }
 .status-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:10px 0 9px; }
