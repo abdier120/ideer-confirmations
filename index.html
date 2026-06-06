@@ -87,6 +87,7 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
   <div style="font-size:10px;letter-spacing:4px;color:#a78bfa;text-transform:uppercase;margin-bottom:8px">Ideer Store</div>
   <div style="font-size:22px;font-weight:700;color:#f5f0eb;margin-bottom:4px">Confirmations</div>
   <div style="font-size:12px;color:#6b7280;margin-bottom:32px">Espace privé – accès réservé</div>
+  <input id="email-input" type="email" placeholder="Email..." style="width:100%;max-width:280px;background:#18181b;border:1px solid #27272a;border-radius:10px;padding:12px 16px;color:#f5f0eb;font-size:15px;outline:none;text-align:center;font-family:Georgia,serif;margin-bottom:8px">
   <input id="pwd-input" type="password" placeholder="Mot de passe..." style="width:100%;max-width:280px;background:#18181b;border:1px solid #27272a;border-radius:10px;padding:12px 16px;color:#f5f0eb;font-size:15px;outline:none;text-align:center;font-family:Georgia,serif;margin-bottom:10px">
   <div id="pwd-error" style="color:#f87171;font-size:12px;height:16px;margin-bottom:10px"></div>
   <button onclick="checkPwd()" style="width:100%;max-width:280px;background:#a78bfa;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:Georgia,serif">Entrer</button>
@@ -95,6 +96,10 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 <div class="header">
   <div class="header-sub">Ideer Store</div>
   <h1>Confirmations <span class="sync-dot" id="sync-dot"></span></h1>
+  <div id="user-badge" style="display:none;align-items:center;justify-content:center;gap:10px;margin-top:5px">
+    <span style="font-size:12px;color:#a78bfa;font-weight:600">👤 <span id="user-name-header"></span></span>
+    <button onclick="window.doSignOut()" style="background:transparent;border:1px solid #3f3f46;border-radius:6px;padding:3px 10px;color:#6b7280;font-size:10px;cursor:pointer;font-family:Georgia,serif">Déconnexion</button>
+  </div>
   <div class="tabs" id="tabs-container">
     <button class="tab active" id="tab-20260603" onclick="showDay('20260603',this)">
       3 juin 2026
@@ -161,6 +166,39 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     <div class="gstat" id="gs-cancelled">
       <span style="font-size:18px;font-weight:700;color:#f87171" id="gs-cancelled-num">0</span>
       <span style="font-size:10px;color:#9ca3af;display:block;margin-top:1px">❌ Annulées <span id="gs-cancelled-pct" style="color:#f87171"></span></span>
+    </div>
+  </div>
+</div>
+
+<!-- CLASSEMENT -->
+<div id="leaderboard" style="margin:10px 14px 0;background:#18181b;border:1px solid #27272a;border-radius:14px;padding:12px 14px">
+  <div style="font-size:10px;letter-spacing:3px;color:#a78bfa;text-transform:uppercase;margin-bottom:14px">🏆 Classement confirmations</div>
+
+  <!-- Awatif -->
+  <div style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:700;color:#f5f0eb">
+        <span id="lb-awatif-crown" style="font-size:16px"></span>Awatif
+        <span id="lb-awatif-you" style="font-size:10px;color:#a78bfa;font-weight:400;margin-left:4px"></span>
+      </div>
+      <span id="lb-awatif-count" style="font-size:22px;font-weight:700;color:#34d399;min-width:28px;text-align:right">0</span>
+    </div>
+    <div style="background:#27272a;border-radius:99px;height:7px;overflow:hidden">
+      <div id="lb-awatif-bar" style="height:100%;background:linear-gradient(90deg,#a78bfa,#34d399);border-radius:99px;width:0%;transition:width .5s ease"></div>
+    </div>
+  </div>
+
+  <!-- Nada -->
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:700;color:#f5f0eb">
+        <span id="lb-nada-crown" style="font-size:16px"></span>Nada
+        <span id="lb-nada-you" style="font-size:10px;color:#a78bfa;font-weight:400;margin-left:4px"></span>
+      </div>
+      <span id="lb-nada-count" style="font-size:22px;font-weight:700;color:#f59e0b;min-width:28px;text-align:right">0</span>
+    </div>
+    <div style="background:#27272a;border-radius:99px;height:7px;overflow:hidden">
+      <div id="lb-nada-bar" style="height:100%;background:linear-gradient(90deg,#f59e0b,#f87171);border-radius:99px;width:0%;transition:width .5s ease"></div>
     </div>
   </div>
 </div>
@@ -2509,6 +2547,7 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCFnbU9KGwDS93expUWIk9A33jsHQvq6SY",
@@ -2521,6 +2560,37 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+let currentUser = '';
+
+const USER_NAMES = {
+  'awatefiderdar8@gmail.com': 'Awatif',
+  'nahazzaz@gmail.com':       'Nada',
+};
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = USER_NAMES[user.email] || user.email;
+    document.getElementById('login-screen').style.display = 'none';
+    const badge = document.getElementById('user-badge');
+    if (badge) badge.style.display = 'flex';
+    const nameEl = document.getElementById('user-name-header');
+    if (nameEl) nameEl.textContent = currentUser;
+    const youA = document.getElementById('lb-awatif-you');
+    const youN = document.getElementById('lb-nada-you');
+    if (youA) youA.textContent = currentUser === 'Awatif' ? '(toi)' : '';
+    if (youN) youN.textContent = currentUser === 'Nada'   ? '(toi)' : '';
+    initAll();
+  } else {
+    currentUser = '';
+    document.getElementById('login-screen').style.display = 'flex';
+    const badge = document.getElementById('user-badge');
+    if (badge) badge.style.display = 'none';
+  }
+});
+
+window.doSignOut = function(){ signOut(auth).catch(()=>{}); };
+
 
 
 // ====== MAPPING IMAGES PAR VARIANTE (couleur) ======
@@ -2712,7 +2782,10 @@ function getState(day,id) { return cache[day+'_'+id]||{}; }
 
 window.setStatus=function(day,order,s){
   const st={...getState(day,order)};
-  st.status=st.status===s?null:s;
+  const newStatus=st.status===s?null:s;
+  st.status=newStatus;
+  if(newStatus==='confirmed'){ st.confirmedBy=currentUser; }
+  else { delete st.confirmedBy; }
   cache[day+'_'+order]=st;
   applyCard(day,order); updateStats(day); updateTabBadge(day); applyFilter(currentFilter,null); updateGlobalStats();
   set(fbRef(day,order),st).then(()=>setSyncDot(true)).catch(()=>setSyncDot(false));
@@ -2879,11 +2952,23 @@ window.doSearch=function(q){
 
 window.closeSearch=function(){ document.getElementById('search-results').classList.remove('active'); document.getElementById('search-input').value=''; };
 
-window.checkPwd=function(){
-  if(document.getElementById('pwd-input').value==='awatif10'){ localStorage.setItem('ideer_auth','1'); document.getElementById('login-screen').style.display='none'; initAll(); }
-  else { document.getElementById('pwd-error').textContent='❌ Mot de passe incorrect'; document.getElementById('pwd-input').value=''; setTimeout(()=>document.getElementById('pwd-error').textContent='',2000); }
+window.checkPwd=async function(){
+  const email=document.getElementById('email-input').value.trim();
+  const pwd=document.getElementById('pwd-input').value;
+  const errEl=document.getElementById('pwd-error');
+  if(!email||!pwd){ errEl.textContent='❌ Remplissez tous les champs'; return; }
+  try{
+    await signInWithEmailAndPassword(auth,email,pwd);
+  } catch(e){
+    errEl.textContent='❌ Email ou mot de passe incorrect';
+    document.getElementById('pwd-input').value='';
+    setTimeout(()=>errEl.textContent='',3000);
+  }
 };
-document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')window.checkPwd();});
+['email-input','pwd-input'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('keydown',e=>{if(e.key==='Enter')window.checkPwd();});
+});
 
 function updateGlobalStats(){
   // Collecte tous les ordres de toutes les journées
@@ -2924,8 +3009,25 @@ function updateGlobalStats(){
     if(el('gbar-callback'))  el('gbar-callback').style.width=pct(callback)+'%';
     if(el('gbar-cancelled')) el('gbar-cancelled').style.width=pct(cancelled)+'%';
   }
+  updateLeaderboard();
 }
 window.updateGlobalStats = updateGlobalStats;
+
+function updateLeaderboard(){
+  const scores={'Awatif':0,'Nada':0};
+  for(const key in cache){
+    const e=cache[key];
+    if(e&&e.status==='confirmed'&&e.confirmedBy&&scores.hasOwnProperty(e.confirmedBy)) scores[e.confirmedBy]++;
+  }
+  const a=scores['Awatif'], n=scores['Nada'], max=Math.max(a,n,1);
+  const el=id=>document.getElementById(id);
+  if(el('lb-awatif-count')) el('lb-awatif-count').textContent=a;
+  if(el('lb-nada-count'))   el('lb-nada-count').textContent=n;
+  if(el('lb-awatif-bar'))   el('lb-awatif-bar').style.width=Math.round((a/max)*100)+'%';
+  if(el('lb-nada-bar'))     el('lb-nada-bar').style.width=Math.round((n/max)*100)+'%';
+  if(el('lb-awatif-crown')) el('lb-awatif-crown').textContent=a>n?'👑 ':'';
+  if(el('lb-nada-crown'))   el('lb-nada-crown').textContent=n>a?'👑 ':'';
+}
 
 function fixVariantImages(){
   document.querySelectorAll('.item-row').forEach(row=>{
@@ -2946,7 +3048,7 @@ function fixVariantImages(){
 
 function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); updateGlobalStats(); }
 
-if(localStorage.getItem('ideer_auth')==='1'){ document.getElementById('login-screen').style.display='none'; initAll(); }
+// Auth géré par Firebase onAuthStateChanged
 </script>
 </body>
 </html>
