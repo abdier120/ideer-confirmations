@@ -101,7 +101,7 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     <button onclick="window.doSignOut()" style="background:transparent;border:1px solid #3f3f46;border-radius:6px;padding:3px 10px;color:#6b7280;font-size:10px;cursor:pointer;font-family:Georgia,serif">Déconnexion</button>
   </div>
   <div class="tabs" id="tabs-container">
-    <button class="tab active" id="tab-20260603" onclick="showDay('20260603',this)">
+    <button class="tab" id="tab-20260603" onclick="showDay('20260603',this)">
       3 juin 2026
       <span class="tab-badge pending" id="tbadge-20260603">6</span>
     </button>
@@ -113,9 +113,9 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
       5 juin 2026
       <span class="tab-badge pending" id="tbadge-20260605">27</span>
     </button>
-    <button class="tab" id="tab-20260606" onclick="showDay('20260606',this)">
+    <button class="tab active" id="tab-20260606" onclick="showDay('20260606',this)">
       6 juin 2026
-      <span class="tab-badge pending" id="tbadge-20260606">21</span>
+      <span class="tab-badge pending" id="tbadge-20260606">28</span>
     </button>
     <!-- NOUVELLES DATES ICI -->
   </div>
@@ -227,7 +227,7 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 <!-- ===================================================== -->
 <!-- JOURNÉE : 3 JUIN 2026  #3034–#3039                   -->
 <!-- ===================================================== -->
-<div class="day-panel active" id="day-20260603">
+<div class="day-panel" id="day-20260603">
   <div class="stats">
     <div class="stat"><div class="stat-num" id="cnt-20260603-pending" style="color:#9ca3af">6</div><div class="stat-label">En attente</div></div>
     <div class="stat"><div class="stat-num" id="cnt-20260603-confirmed" style="color:#34d399">0</div><div class="stat-label">Confirmées</div></div>
@@ -2184,9 +2184,9 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 <!-- ===================================================== -->
 <!-- JOURNÉE : 6 JUIN 2026  #3102–#3104                   -->
 <!-- ===================================================== -->
-<div class="day-panel" id="day-20260606">
+<div class="day-panel active" id="day-20260606">
   <div class="stats">
-    <div class="stat"><div class="stat-num" id="cnt-20260606-pending" style="color:#9ca3af">21</div><div class="stat-label">En attente</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-20260606-pending" style="color:#9ca3af">28</div><div class="stat-label">En attente</div></div>
     <div class="stat"><div class="stat-num" id="cnt-20260606-confirmed" style="color:#34d399">0</div><div class="stat-label">Confirmées</div></div>
     <div class="stat"><div class="stat-num" id="cnt-20260606-other" style="color:#fbbf24">0</div><div class="stat-label">Traitées</div></div>
   </div>
@@ -2809,6 +2809,211 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
     </div>
   </div>
 
+
+  <!-- #3123 -->
+  <div class="card" id="card-20260606-3123" data-day="20260606" data-order="3123">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3123 <span class="badge-status" id="badge-20260606-3123"></span></div>
+        <div class="customer-name">Khaoula chamy</div>
+        <div class="customer-city">📍 Hay laml, Salé</div>
+        <div class="customer-phone">📞 +212652312919</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212652312919?text=Salam%20Khaoula%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233123%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20bandouli%C3%A8re%20femme%20%C3%A9l%C3%A9gant%20%E2%80%93%20Julia%20%E2%80%93%20Cremy%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_2_fevr_2026_23_39_38_V5.jpg?v=1775268570&width=150" alt=""><span class="item-name">🛍 Sac bandoulière femme élégant – Julia – Cremy</span></div>
+    <div class="montant-box">
+      <div class="montant-line"><span>Sac Julia × 1</span><span>149 DH</span></div>
+      <div class="montant-line total"><span>Total commande</span><span>149 DH</span></div>
+    </div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260606','3123','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3123','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260606','3123','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3123','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260606-3123" placeholder="＋ Remarque..." onblur="saveNote('20260606','3123')" oninput="onNoteInput('20260606','3123')"></textarea>
+      <span class="saved-badge" id="saved-20260606-3123">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3124 -->
+  <div class="card" id="card-20260606-3124" data-day="20260606" data-order="3124">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3124 <span class="badge-status" id="badge-20260606-3124"></span></div>
+        <div class="customer-name">عمر</div>
+        <div class="customer-city">📍 المكانسة 1بلوكB, الدارالبيضاء</div>
+        <div class="customer-phone">📞 +212625674003</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212625674003?text=Salam%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233124%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20Julia%20Luxe%20%E2%80%93%20Bordeaux%0A%E2%80%A2%20Sac%20Julia%20Luxe%20%E2%80%93%20Bordeaux%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_6_avr_2026_04_33_44_V8.jpg?v=1778361981&width=150" alt=""><span class="item-name">🛍 Sac Julia Luxe – Bordeaux</span></div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_6_avr_2026_04_33_44_V8.jpg?v=1778361981&width=150" alt=""><span class="item-name">🛍 Sac Julia Luxe – Bordeaux</span></div>
+    <div class="montant-box">
+      <div class="montant-line"><span>Julia Luxe × 2</span><span>298 DH</span></div>
+      <div class="montant-line reduction"><span>🎁 Réduction (2 sacs × 24 DH)</span><span>– 48 DH</span></div>
+      <div class="montant-line total"><span>Total commande</span><span>250 DH</span></div>
+    </div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260606','3124','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3124','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260606','3124','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3124','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260606-3124" placeholder="＋ Remarque..." onblur="saveNote('20260606','3124')" oninput="onNoteInput('20260606','3124')"></textarea>
+      <span class="saved-badge" id="saved-20260606-3124">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3125 -->
+  <div class="card" id="card-20260606-3125" data-day="20260606" data-order="3125">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3125 <span class="badge-status" id="badge-20260606-3125"></span></div>
+        <div class="customer-name">Hind</div>
+        <div class="customer-city">📍 Rue moulay abdelaziz imm kenzi B, Kénitra</div>
+        <div class="customer-phone">📞 +212669001704</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212669001704?text=Salam%20Hind%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233125%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20%C3%89l%C3%A9gance%20Dor%C3%A9e%20%E2%80%93%20Beige%0A%E2%80%A2%20Sac%20Chic%20Textur%C3%A9%20%E2%80%93%20Marine%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_29_47.png?v=1776303068&width=150" alt=""><span class="item-name">🛍 Sac Élégance Dorée – Beige</span></div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_18_mai_2026_03_07_09.png?v=1779070042&width=150" alt=""><span class="item-name">🛍 Sac Chic Texturé – Marine</span></div>
+    <div class="montant-box">
+      <div class="montant-line"><span>Elégance Dorée + Chic Texturé × 2</span><span>298 DH</span></div>
+      <div class="montant-line reduction"><span>🎁 Réduction (2 sacs × 24 DH)</span><span>– 48 DH</span></div>
+      <div class="montant-line total"><span>Total commande</span><span>250 DH</span></div>
+    </div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260606','3125','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3125','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260606','3125','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3125','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260606-3125" placeholder="＋ Remarque..." onblur="saveNote('20260606','3125')" oninput="onNoteInput('20260606','3125')"></textarea>
+      <span class="saved-badge" id="saved-20260606-3125">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3126 -->
+  <div class="card" id="card-20260606-3126" data-day="20260606" data-order="3126">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3126 <span class="badge-status" id="badge-20260606-3126"></span></div>
+        <div class="customer-name">Zellal rachida</div>
+        <div class="customer-city">📍 Alhafa rue 3 n32, Tanger</div>
+        <div class="customer-phone">📞 +212664093524</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212664093524?text=Salam%20Zellal%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233126%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Mod%C3%A8le%20Stella%20Classique%20%E2%80%93%20Vert%20olive%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/IMG_5686.jpg?v=1778509534&width=150" alt=""><span class="item-name">🛍 Modèle Stella Classique – Vert olive</span></div>
+    <div class="montant-box">
+      <div class="montant-line"><span>Stella Classique × 1</span><span>149 DH</span></div>
+      <div class="montant-line total"><span>Total commande</span><span>149 DH</span></div>
+    </div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260606','3126','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3126','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260606','3126','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3126','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260606-3126" placeholder="＋ Remarque..." onblur="saveNote('20260606','3126')" oninput="onNoteInput('20260606','3126')"></textarea>
+      <span class="saved-badge" id="saved-20260606-3126">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3127 -->
+  <div class="card" id="card-20260606-3127" data-day="20260606" data-order="3127">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3127 <span class="badge-status" id="badge-20260606-3127"></span></div>
+        <div class="customer-name">Fatima Errahmani</div>
+        <div class="customer-city">📍 Tétouan</div>
+        <div class="customer-phone">📞 +212665068192</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212665068192?text=Salam%20Fatima%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233127%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20Julia%20Luxe%20%E2%80%93%20Blanc%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_6_avr_2026_04_33_44_V9.jpg?v=1775448460&width=150" alt=""><span class="item-name">🛍 Sac Julia Luxe – Blanc</span></div>
+    <div class="montant-box">
+      <div class="montant-line"><span>Sac Julia Luxe × 1</span><span>149 DH</span></div>
+      <div class="montant-line total"><span>Total commande</span><span>149 DH</span></div>
+    </div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260606','3127','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3127','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260606','3127','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3127','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260606-3127" placeholder="＋ Remarque..." onblur="saveNote('20260606','3127')" oninput="onNoteInput('20260606','3127')"></textarea>
+      <span class="saved-badge" id="saved-20260606-3127">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3128 -->
+  <div class="card" id="card-20260606-3128" data-day="20260606" data-order="3128">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3128 <span class="badge-status" id="badge-20260606-3128"></span></div>
+        <div class="customer-name">Khawla</div>
+        <div class="customer-city">📍 Mabrouka hay moukhtar soussi, Casablanca</div>
+        <div class="customer-phone">📞 +212602913568</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212602913568?text=Salam%20Khawla%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233128%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20%C3%89l%C3%A9gance%20Dor%C3%A9e%20%E2%80%93%20Bordeaux%0A%E2%80%A2%20Sac%20bandouli%C3%A8re%20femme%20%C3%A9l%C3%A9gant%20%E2%80%93%20Julia%20%E2%80%93%20Blanc%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_31_43.png?v=1778361941&width=150" alt=""><span class="item-name">🛍 Sac Élégance Dorée – Bordeaux</span></div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/WhatsApp_Image_2026_01_09_at_01_44_04_2_V4.jpg?v=1775237605&width=150" alt=""><span class="item-name">🛍 Sac bandoulière femme élégant – Julia – Blanc</span></div>
+    <div class="montant-box">
+      <div class="montant-line"><span>Elégance Dorée + Julia × 2</span><span>298 DH</span></div>
+      <div class="montant-line reduction"><span>🎁 Réduction (2 sacs × 24 DH)</span><span>– 48 DH</span></div>
+      <div class="montant-line total"><span>Total commande</span><span>250 DH</span></div>
+    </div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260606','3128','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3128','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260606','3128','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3128','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260606-3128" placeholder="＋ Remarque..." onblur="saveNote('20260606','3128')" oninput="onNoteInput('20260606','3128')"></textarea>
+      <span class="saved-badge" id="saved-20260606-3128">✓ Sauvegardé</span>
+    </div>
+  </div>
+
+  <!-- #3129 -->
+  <div class="card" id="card-20260606-3129" data-day="20260606" data-order="3129">
+    <div class="card-top">
+      <div>
+        <div class="order-id">#3129 <span class="badge-status" id="badge-20260606-3129"></span></div>
+        <div class="customer-name">Wesley</div>
+        <div class="customer-city">📍 Rue bir jdid, Sale</div>
+        <div class="customer-phone">📞 +212615334826</div>
+      </div>
+      <a class="wa-btn" href="https://wa.me/212615334826?text=Salam%20Wesley%20%F0%9F%8C%B8%0A%0AMerci%20pour%20votre%20commande%20%233129%20chez%20*Ideer%20Store*%20!%0A%0AVotre%20commande%20%3A%0A%E2%80%A2%20Sac%20%C3%89l%C3%A9gance%20Signature%20%E2%80%93%20Camel%20fonc%C3%A9%0A%E2%80%A2%20Sac%20%C3%89l%C3%A9gance%20Dor%C3%A9e%20%E2%80%93%20Camel%20fonc%C3%A9%0A%0APouvez-vous%20confirmer%20votre%20commande%20et%20votre%20adresse%20de%20livraison%20%3F%20%F0%9F%93%A6%0A%0AMerci%20%F0%9F%99%8F">💬</a>
+    </div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage13mars2026_20_14_26.png?v=1778362481&width=150" alt=""><span class="item-name">🛍 Sac Élégance Signature – Camel foncé</span></div>
+    <div class="item-row"><img class="item-img" src="https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage11avr.2026_15_13_49.png?v=1776303068&width=150" alt=""><span class="item-name">🛍 Sac Élégance Dorée – Camel foncé</span></div>
+    <div class="montant-box">
+      <div class="montant-line"><span>Elégance Signature + Elégance Dorée × 2</span><span>298 DH</span></div>
+      <div class="montant-line reduction"><span>🎁 Réduction (2 sacs × 24 DH)</span><span>– 48 DH</span></div>
+      <div class="montant-line total"><span>Total commande</span><span>250 DH</span></div>
+    </div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('20260606','3129','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3129','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('20260606','3129','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('20260606','3129','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-20260606-3129" placeholder="＋ Remarque..." onblur="saveNote('20260606','3129')" oninput="onNoteInput('20260606','3129')"></textarea>
+      <span class="saved-badge" id="saved-20260606-3129">✓ Sauvegardé</span>
+    </div>
+  </div>
+
   <div class="action-btns">
     <button class="reset-btn" onclick="resetDay('20260606')">🗑 Réinitialiser</button>
     <button class="archive-btn" onclick="archiveDay('20260606')">📦 Archiver</button>
@@ -2840,6 +3045,7 @@ let currentUser = '';
 const USER_NAMES = {
   'awatefiderdar8@gmail.com': 'Awatif',
   'nahazzaz@gmail.com':       'Nada',
+  'abdellahfaceiderdar@gmail.com': 'Abdou',
 };
 
 onAuthStateChanged(auth, user => {
@@ -3220,6 +3426,13 @@ const ALL_ORDERS=[
   {day:'20260606',id:'3120',name:'Imane',               phone:'+212641312134',city:'Fes',         items:['Sac Softy – Modèle Daily Chic – Marron chocolat']},
   {day:'20260606',id:'3121',name:'Fatima',              phone:'0780301153',   city:'Tanger',      items:['Sac bandoulière élégant – Modèle Milano – Noir','Sac bandoulière élégant – Modèle Milano – Marron']},
   {day:'20260606',id:'3122',name:'Amina',               phone:'+212613172403',city:'Casablanca',  items:['Sac Chic Texturé – Bleu ciel','Sac Chic Texturé – Camel','Sac Chic Texturé – Bordeaux','Sac Chic Texturé – Marine']},
+  {day:'20260606',id:'3123',name:'Khaoula chamy',    phone:'+212652312919',city:'Salé',       items:['Sac bandoulière femme élégant – Julia – Cremy']},
+  {day:'20260606',id:'3124',name:'عمر',               phone:'+212625674003',city:'الدارالبيضاء', items:['Sac Julia Luxe – Bordeaux','Sac Julia Luxe – Bordeaux']},
+  {day:'20260606',id:'3125',name:'Hind',              phone:'+212669001704',city:'Kénitra',    items:['Sac Élégance Dorée – Beige','Sac Chic Texturé – Marine']},
+  {day:'20260606',id:'3126',name:'Zellal rachida',   phone:'+212664093524',city:'Tanger',     items:['Modèle Stella Classique – Vert olive']},
+  {day:'20260606',id:'3127',name:'Fatima Errahmani', phone:'+212665068192',city:'Tétouan',    items:['Sac Julia Luxe – Blanc']},
+  {day:'20260606',id:'3128',name:'Khawla',           phone:'+212602913568',city:'Casablanca',  items:['Sac Élégance Dorée – Bordeaux','Sac bandoulière femme élégant – Julia – Blanc']},
+  {day:'20260606',id:'3129',name:'Wesley',           phone:'+212615334826',city:'Sale',        items:['Sac Élégance Signature – Camel foncé','Sac Élégance Dorée – Camel foncé']},
 ];
 
 window.doSearch=function(q){
@@ -3329,7 +3542,7 @@ function fixVariantImages(){
   });
 }
 
-function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); updateGlobalStats(); }
+function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } }
 
 // Auth géré par Firebase onAuthStateChanged
 </script>
