@@ -116,13 +116,53 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
   </div>
 </div>
 
-<div class="filter-bar">
+<div class="filter-bar" id="filter-bar">
   <button class="filter-btn active" onclick="applyFilter('all',this)">🗂 Toutes</button>
   <button class="filter-btn" onclick="applyFilter('pending',this)">⏳ En attente</button>
   <button class="filter-btn" onclick="applyFilter('confirmed',this)">✅ Confirmées</button>
   <button class="filter-btn" onclick="applyFilter('no_answer',this)">📵 Sans réponse</button>
   <button class="filter-btn" onclick="applyFilter('cancelled',this)">❌ Annulées</button>
   <button class="filter-btn" onclick="applyFilter('callback',this)">🔁 Rappeler</button>
+</div>
+
+<!-- TABLEAU DE BORD GLOBAL -->
+<div id="global-dashboard" style="margin:10px 14px 0;background:#18181b;border:1px solid #27272a;border-radius:14px;padding:12px 14px">
+  <div style="font-size:10px;letter-spacing:3px;color:#a78bfa;text-transform:uppercase;margin-bottom:10px">📊 Tableau de bord global — toutes journées</div>
+  <!-- Barre de progression segmentée -->
+  <div style="display:flex;height:8px;border-radius:99px;overflow:hidden;margin-bottom:12px;gap:2px" id="global-bar">
+    <div id="gbar-confirmed"  style="background:#34d399;transition:width .4s;border-radius:99px 0 0 99px" title="Confirmées"></div>
+    <div id="gbar-pending"    style="background:#6b7280;transition:width .4s" title="En attente"></div>
+    <div id="gbar-no_answer" style="background:#fbbf24;transition:width .4s" title="Sans réponse"></div>
+    <div id="gbar-callback"  style="background:#c4b5fd;transition:width .4s" title="À rappeler"></div>
+    <div id="gbar-cancelled" style="background:#f87171;transition:width .4s;border-radius:0 99px 99px 0" title="Annulées"></div>
+  </div>
+  <!-- Légende avec chiffres -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px" id="global-legend">
+    <div class="gstat" id="gs-total">
+      <span style="font-size:18px;font-weight:700;color:#f5f0eb" id="gs-total-num">0</span>
+      <span style="font-size:10px;color:#9ca3af;display:block;margin-top:1px">📋 Total commandes</span>
+    </div>
+    <div class="gstat" id="gs-confirmed">
+      <span style="font-size:18px;font-weight:700;color:#34d399" id="gs-confirmed-num">0</span>
+      <span style="font-size:10px;color:#9ca3af;display:block;margin-top:1px">✅ Confirmées <span id="gs-confirmed-pct" style="color:#34d399"></span></span>
+    </div>
+    <div class="gstat" id="gs-pending">
+      <span style="font-size:18px;font-weight:700;color:#9ca3af" id="gs-pending-num">0</span>
+      <span style="font-size:10px;color:#9ca3af;display:block;margin-top:1px">⏳ En attente <span id="gs-pending-pct"></span></span>
+    </div>
+    <div class="gstat" id="gs-no_answer">
+      <span style="font-size:18px;font-weight:700;color:#fbbf24" id="gs-no_answer-num">0</span>
+      <span style="font-size:10px;color:#9ca3af;display:block;margin-top:1px">📵 Sans réponse <span id="gs-no_answer-pct" style="color:#fbbf24"></span></span>
+    </div>
+    <div class="gstat" id="gs-callback">
+      <span style="font-size:18px;font-weight:700;color:#c4b5fd" id="gs-callback-num">0</span>
+      <span style="font-size:10px;color:#9ca3af;display:block;margin-top:1px">🔁 À rappeler <span id="gs-callback-pct" style="color:#c4b5fd"></span></span>
+    </div>
+    <div class="gstat" id="gs-cancelled">
+      <span style="font-size:18px;font-weight:700;color:#f87171" id="gs-cancelled-num">0</span>
+      <span style="font-size:10px;color:#9ca3af;display:block;margin-top:1px">❌ Annulées <span id="gs-cancelled-pct" style="color:#f87171"></span></span>
+    </div>
+  </div>
 </div>
 
 <div class="search-wrap">
@@ -2557,7 +2597,7 @@ window.setStatus=function(day,order,s){
   const st={...getState(day,order)};
   st.status=st.status===s?null:s;
   cache[day+'_'+order]=st;
-  applyCard(day,order); updateStats(day); updateTabBadge(day); applyFilter(currentFilter,null);
+  applyCard(day,order); updateStats(day); updateTabBadge(day); applyFilter(currentFilter,null); updateGlobalStats();
   set(fbRef(day,order),st).then(()=>setSyncDot(true)).catch(()=>setSyncDot(false));
 };
 
@@ -2580,7 +2620,7 @@ function applyCard(day,order){
   if(badge){ if(st.status&&STATUS_CFG[st.status]){ const c=STATUS_CFG[st.status]; badge.textContent=c.label; badge.style.cssText=`background:${c.bg};color:${c.color};padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600`; } else { badge.textContent=''; badge.style.cssText=''; } }
   const ta=document.getElementById('note-'+day+'-'+order);
   if(ta&&st.note){ ta.value=st.note; ta.classList.add('has-note'); }
-  updateStats(day); updateTabBadge(day);
+  updateStats(day); updateTabBadge(day); updateGlobalStats();
 }
 
 function getOrderIds(day){ const panel=document.getElementById('day-'+day); if(!panel) return []; return Array.from(panel.querySelectorAll('.card')).map(c=>c.id.replace('card-'+day+'-','')); }
@@ -2698,6 +2738,11 @@ const ALL_ORDERS=[
   {day:'20260606',id:'3102',name:'Client',             phone:'+212600906631',city:'Agadir',     items:['Modèle Stella Classique – Noir']},
   {day:'20260606',id:'3103',name:'Imane Mansour',      phone:'+212631259793',city:'Casablanca', items:['Sac Chic Texturé – Marron','Sac Élégance Dorée – Noir']},
   {day:'20260606',id:'3104',name:'Fatima Zahra',       phone:'+212675352877',city:'Salé',       items:['Sac Élégance Dorée – Beige']},
+  {day:'20260606',id:'3105',name:'Fatima',             phone:'+212762245550',city:'Agadir',     items:['Sac Élégance Signature – Beige','Sac Milano – Marron']},
+  {day:'20260606',id:'3106',name:'Imane Rim Bourouba', phone:'+212635218385',city:'Salé',       items:['Sac Softy Daily Chic – Bordeaux']},
+  {day:'20260606',id:'3107',name:'Haban Houda',        phone:'+212608857871',city:'Taourirt',   items:['Sac Julia Luxe – Camel','Sac Julia Luxe – Blanc']},
+  {day:'20260606',id:'3108',name:'Hasna Mouttaki',     phone:'+212762150440',city:'Casablanca', items:['Sac Chic Texturé – Bordeaux','Sac Chic Texturé – Noir']},
+  {day:'20260606',id:'3109',name:'سكينة المهتدي',       phone:'+212667583719',city:'الداخلة',    items:['Sac Julia Luxe – Blanc']},
 ];
 
 window.doSearch=function(q){
@@ -2719,6 +2764,48 @@ window.checkPwd=function(){
 };
 document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')window.checkPwd();});
 
+function updateGlobalStats(){
+  // Collecte tous les ordres de toutes les journées
+  const allCards = document.querySelectorAll('.card[data-day][data-order]');
+  let total=0, confirmed=0, pending=0, no_answer=0, callback=0, cancelled=0;
+  allCards.forEach(card=>{
+    const day=card.dataset.day, order=card.dataset.order;
+    if(!day||!order) return;
+    total++;
+    const s=(getState(day,order)||{}).status;
+    if(!s) pending++;
+    else if(s==='confirmed') confirmed++;
+    else if(s==='no_answer') no_answer++;
+    else if(s==='callback') callback++;
+    else if(s==='cancelled') cancelled++;
+  });
+  const pct=n=>total?Math.round((n/total)*100):0;
+  // Chiffres
+  const el=id=>document.getElementById(id);
+  if(el('gs-total-num'))     el('gs-total-num').textContent=total;
+  if(el('gs-confirmed-num')) el('gs-confirmed-num').textContent=confirmed;
+  if(el('gs-pending-num'))   el('gs-pending-num').textContent=pending;
+  if(el('gs-no_answer-num')) el('gs-no_answer-num').textContent=no_answer;
+  if(el('gs-callback-num'))  el('gs-callback-num').textContent=callback;
+  if(el('gs-cancelled-num')) el('gs-cancelled-num').textContent=cancelled;
+  // Pourcentages
+  if(el('gs-confirmed-pct')) el('gs-confirmed-pct').textContent=pct(confirmed)+'%';
+  if(el('gs-pending-pct'))   el('gs-pending-pct').textContent=pct(pending)+'%';
+  if(el('gs-no_answer-pct')) el('gs-no_answer-pct').textContent=pct(no_answer)+'%';
+  if(el('gs-callback-pct'))  el('gs-callback-pct').textContent=pct(callback)+'%';
+  if(el('gs-cancelled-pct')) el('gs-cancelled-pct').textContent=pct(cancelled)+'%';
+  // Barre segmentée
+  const barW=id=>{ if(el(id)) el(id).style.width=pct(id==='gbar-confirmed'?confirmed:id==='gbar-pending'?pending:id==='gbar-no_answer'?no_answer:id==='gbar-callback'?callback:cancelled)+'%'; };
+  if(total){
+    if(el('gbar-confirmed')) el('gbar-confirmed').style.width=pct(confirmed)+'%';
+    if(el('gbar-pending'))   el('gbar-pending').style.width=pct(pending)+'%';
+    if(el('gbar-no_answer')) el('gbar-no_answer').style.width=pct(no_answer)+'%';
+    if(el('gbar-callback'))  el('gbar-callback').style.width=pct(callback)+'%';
+    if(el('gbar-cancelled')) el('gbar-cancelled').style.width=pct(cancelled)+'%';
+  }
+}
+window.updateGlobalStats = updateGlobalStats;
+
 function fixVariantImages(){
   document.querySelectorAll('.item-row').forEach(row=>{
     const img = row.querySelector('.item-img');
@@ -2736,7 +2823,7 @@ function fixVariantImages(){
   });
 }
 
-function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); }
+function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); updateGlobalStats(); }
 
 if(localStorage.getItem('ideer_auth')==='1'){ document.getElementById('login-screen').style.display='none'; initAll(); }
 </script>
