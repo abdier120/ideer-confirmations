@@ -46,13 +46,18 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .card { background:#18181b; border:1px solid #27272a; border-radius:14px; padding:13px; margin-bottom:12px; transition:border-color .3s; overflow:hidden; width:100%; }
 .card.hidden { display:none; }
 .card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; gap:8px; }
-#toast-container { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; }
-.toast { background:#1e1b2e; border:1px solid #a78bfa; border-radius:14px; padding:12px 18px; color:#f5f0eb; font-size:13px; font-family:Georgia,serif; box-shadow:0 4px 24px rgba(167,139,250,.35); display:flex; align-items:center; gap:10px; opacity:0; transform:translateY(20px); transition:opacity .35s, transform .35s; pointer-events:auto; max-width:320px; }
-.toast.show { opacity:1; transform:translateY(0); }
-.toast-icon { font-size:20px; flex-shrink:0; }
-.toast-body { min-width:0; }
-.toast-title { font-weight:700; color:#a78bfa; font-size:12px; letter-spacing:1px; text-transform:uppercase; }
-.toast-msg { color:#f5f0eb; margin-top:2px; word-break:break-word; }
+#toast-container { position:fixed; top:16px; right:16px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none; width:calc(100vw - 32px); max-width:310px; }
+.toast { background:#18181b; border:1px solid rgba(167,139,250,.2); border-radius:16px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,.7),0 0 0 1px rgba(167,139,250,.08); opacity:0; transform:translateX(115%); transition:opacity .4s ease,transform .45s cubic-bezier(.34,1.56,.64,1); pointer-events:auto; }
+.toast.show { opacity:1; transform:translateX(0); }
+.toast-inner { display:flex; align-items:stretch; }
+.toast-accent { width:4px; background:linear-gradient(180deg,#a78bfa,#7c3aed); flex-shrink:0; }
+.toast-content { padding:11px 14px; flex:1; min-width:0; }
+.toast-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#a78bfa; margin-bottom:3px; display:flex; align-items:center; gap:5px; }
+.toast-name { font-size:14px; font-weight:700; color:#f5f0eb; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.toast-city { font-size:11px; color:#6b7280; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.toast-prog { height:2px; background:rgba(167,139,250,.12); }
+.toast-prog-bar { height:100%; background:linear-gradient(90deg,#7c3aed,#a78bfa); transform-origin:left; animation:toastProg 5s linear forwards; }
+@keyframes toastProg { from{transform:scaleX(1)} to{transform:scaleX(0)} }
 .card-top > div { min-width:0; flex:1; overflow:hidden; }
 .order-id { color:#a78bfa; font-size:11px; font-weight:600; letter-spacing:1px; }
 .customer-name { font-size:15px; font-weight:700; margin-top:2px; word-break:break-word; overflow-wrap:anywhere; }
@@ -4061,7 +4066,9 @@ onAuthStateChanged(auth, user => {
     // Presence : marquer en ligne avec onDisconnect auto
     const presenceRef = ref(db, 'presence/' + currentUser);
     onValue(ref(db, '.info/connected'), (snap) => {
-      if (snap.val() === true) {
+      const connected = snap.val() === true;
+      setSyncDot(connected);
+      if (connected) {
         onDisconnect(presenceRef).set(false);
         set(presenceRef, true);
       }
@@ -4393,16 +4400,22 @@ function showToast(name, orderId, city) {
   const t = document.createElement('div');
   t.className = 'toast';
   t.innerHTML =
-    `<span class="toast-icon">📦</span>
-     <div class="toast-body">
-       <div class="toast-title">Nouvelle commande</div>
-       <div class="toast-msg"><strong>#${orderId}</strong> — ${name}${city ? ' · ' + city : ''}</div>
-     </div>`;
+    `<div class="toast-inner">
+       <div class="toast-accent"></div>
+       <div class="toast-content">
+         <div class="toast-label">📦 Nouvelle commande</div>
+         <div class="toast-name">#${orderId} · ${name}</div>
+         ${city ? `<div class="toast-city">📍 ${city}</div>` : ''}
+       </div>
+     </div>
+     <div class="toast-prog"><div class="toast-prog-bar"></div></div>`;
   container.appendChild(t);
-  requestAnimationFrame(() => { requestAnimationFrame(() => { t.classList.add('show'); }); });
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
   setTimeout(() => {
-    t.classList.remove('show');
-    setTimeout(() => t.remove(), 400);
+    t.style.transition = 'opacity .35s ease, transform .35s ease';
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(115%)';
+    setTimeout(() => t.remove(), 380);
   }, 5000);
 }
 
