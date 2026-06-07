@@ -4263,12 +4263,131 @@ function archRef(day) { return ref(db, `archives/${day}`); }
 function setSyncDot(ok) { const d=document.getElementById('sync-dot'); if(d) d.className='sync-dot '+(ok?'ok':'err'); }
 
 function listenDay(day) {
-  const panel=document.getElementById('day-'+day);
-  if(!panel) return;
-  getOrderIds(day).forEach(id=>{
-    onValue(fbRef(day,id), snap=>{ cache[day+'_'+id]=snap.val()||{}; applyCard(day,id); setSyncDot(true); }, ()=>setSyncDot(false));
+  document.querySelectorAll(`.card[data-day="${day}"]`).forEach(card => {
+    const order = card.dataset.order;
+    onValue(fbRef(day, order), snap => {
+      cache[day + '_' + order] = snap.val() || {};
+      applyCard(day, order);
+      updateStats(day);
+      updateTabBadge(day);
+      updateGlobalStats();
+    });
   });
-  onValue(archRef(day), snap=>{ if(snap.val()) applyArchiveUI(day); });
+}
+
+// ── Phase 4 : nouvelles commandes depuis Shopify via Firebase ──────────────
+function makeDayLabel(day) {
+  const mois = ['','janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  return parseInt(day.slice(6,8)) + ' ' + mois[parseInt(day.slice(4,6))] + ' ' + day.slice(0,4);
+}
+
+function ensureDayExists(day) {
+  if (document.getElementById('day-' + day)) return;
+  const label = makeDayLabel(day);
+
+  // Nouvel onglet
+  const btn = document.createElement('button');
+  btn.className = 'tab';
+  btn.id = 'tab-' + day;
+  btn.innerHTML = label + '<span class="tab-badge pending" id="tbadge-' + day + '">0</span>';
+  btn.onclick = function(){ showDay(day, this); };
+  const container = document.getElementById('tabs-container');
+  const comment = [...container.childNodes].find(n => n.nodeType === 8);
+  comment ? container.insertBefore(btn, comment) : container.appendChild(btn);
+
+  // Nouveau panneau
+  const panel = document.createElement('div');
+  panel.className = 'day-panel';
+  panel.id = 'day-' + day;
+  panel.innerHTML =
+    `<div class="stats">
+      <div class="stat"><div class="stat-num" id="cnt-${day}-pending" style="color:#9ca3af">0</div><div class="stat-label">⏳ En attente</div></div>
+      <div class="stat"><div class="stat-num" id="cnt-${day}-confirmed" style="color:#34d399">0</div><div class="stat-label">✅ Confirmées</div></div>
+      <div class="stat"><div class="stat-num" id="cnt-${day}-other" style="color:#f59e0b">0</div><div class="stat-label">🔄 Traitées</div></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="pbar-${day}" style="width:0%"></div></div>
+    <div class="action-btns">
+      <button class="reset-btn" onclick="resetDay('${day}')">🗑 Réinitialiser</button>
+      <button class="archive-btn" onclick="archiveDay('${day}')">📦 Archiver</button>
+    </div>`;
+  const lastPanel = [...document.querySelectorAll('.day-panel')].pop();
+  lastPanel ? lastPanel.after(panel) : document.querySelector('.day-panels-wrap')?.appendChild(panel);
+}
+
+function renderFirebaseCard(day, orderId, data) {
+  ensureDayExists(day);
+  const panel = document.getElementById('day-' + day);
+  if (!panel || document.getElementById('card-' + day + '-' + orderId)) return;
+
+  const items = Array.isArray(data.items) ? data.items : [];
+  const rows = items.map(it =>
+    `<div class="item-row"><img class="item-img" src="${it.img||''}" alt=""><span class="item-name">🛍 ${it.disp||it.name||''}</span></div>`
+  ).join('');
+
+  const n = items.length;
+  const displayId = data.mergedWith ? orderId + ' · ' + data.mergedWith : orderId;
+  let montant = '';
+  if (n <= 1) {
+    montant = `<div class="montant-line"><span>Sac × 1</span><span>${data.subtotal||149} DH</span></div>
+               <div class="montant-line total"><span>Total commande</span><span>${data.total||149} DH</span></div>`;
+  } else {
+    montant = `<div class="montant-line"><span>${n} sacs</span><span>${data.subtotal||0} DH</span></div>
+               <div class="montant-line reduction"><span>🎁 Réduction (${n} sacs × 24 DH)</span><span>– ${data.reduc||0} DH</span></div>
+               <div class="montant-line total"><span>Total commande</span><span>${data.total||0} DH</span></div>`;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'card-' + day + '-' + orderId;
+  card.dataset.day = day;
+  card.dataset.order = orderId;
+  card.innerHTML =
+    `<div class="card-top">
+      <div>
+        <div class="order-id">#${displayId} <span class="badge-status" id="badge-${day}-${orderId}"></span></div>
+        <div class="customer-name">${data.name||'Client'}</div>
+        <div class="customer-city">📍 ${data.cityLine||data.city||''}</div>
+        <div class="customer-phone">📞 ${data.phone||''}</div>
+      </div>
+      <a class="wa-btn" href="${data.wa||'#'}">💬</a>
+    </div>
+    ${rows}
+    <div class="montant-box">${montant}</div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="setStatus('${day}','${orderId}','confirmed')">✅ Confirmée</button>
+      <button class="status-btn" onclick="setStatus('${day}','${orderId}','no_answer')">📵 Pas de réponse</button>
+      <button class="status-btn" onclick="setStatus('${day}','${orderId}','cancelled')">❌ Annulée</button>
+      <button class="status-btn" onclick="setStatus('${day}','${orderId}','callback')">🔁 Rappeler</button>
+    </div>
+    <div class="note-wrap">
+      <textarea class="note-area" id="note-${day}-${orderId}" placeholder="＋ Remarque..." onblur="saveNote('${day}','${orderId}')" oninput="onNoteInput('${day}','${orderId}')"></textarea>
+      <span class="saved-badge" id="saved-${day}-${orderId}">✓ Sauvegardé</span>
+    </div>`;
+
+  panel.querySelector('.action-btns').before(card);
+
+  // Écouter les changements de statut/note pour cette carte
+  onValue(fbRef(day, orderId), snap => {
+    cache[day + '_' + orderId] = snap.val() || {};
+    applyCard(day, orderId);
+    updateStats(day);
+    updateTabBadge(day);
+    updateGlobalStats();
+  });
+}
+
+function listenForNewOrders() {
+  onValue(ref(db, 'orders'), snap => {
+    const allOrders = snap.val() || {};
+    for (const [day, dayOrders] of Object.entries(allOrders)) {
+      for (const [orderId, orderData] of Object.entries(dayOrders)) {
+        const isNewOrder = Array.isArray(orderData.items) && orderData.items.length > 0;
+        if (!document.getElementById('card-' + day + '-' + orderId) && isNewOrder) {
+          renderFirebaseCard(day, orderId, orderData);
+        }
+      }
+    }
+  });
 }
 
 function getState(day,id) { return cache[day+'_'+id]||{}; }
@@ -4590,7 +4709,7 @@ function fixVariantImages(){
   });
 }
 
-function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } }
+function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenForNewOrders(); }
 
 // Auth géré par Firebase onAuthStateChanged
 </script>
