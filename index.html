@@ -46,6 +46,13 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .card { background:#18181b; border:1px solid #27272a; border-radius:14px; padding:13px; margin-bottom:12px; transition:border-color .3s; overflow:hidden; width:100%; }
 .card.hidden { display:none; }
 .card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; gap:8px; }
+#toast-container { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; }
+.toast { background:#1e1b2e; border:1px solid #a78bfa; border-radius:14px; padding:12px 18px; color:#f5f0eb; font-size:13px; font-family:Georgia,serif; box-shadow:0 4px 24px rgba(167,139,250,.35); display:flex; align-items:center; gap:10px; opacity:0; transform:translateY(20px); transition:opacity .35s, transform .35s; pointer-events:auto; max-width:320px; }
+.toast.show { opacity:1; transform:translateY(0); }
+.toast-icon { font-size:20px; flex-shrink:0; }
+.toast-body { min-width:0; }
+.toast-title { font-weight:700; color:#a78bfa; font-size:12px; letter-spacing:1px; text-transform:uppercase; }
+.toast-msg { color:#f5f0eb; margin-top:2px; word-break:break-word; }
 .card-top > div { min-width:0; flex:1; overflow:hidden; }
 .order-id { color:#a78bfa; font-size:11px; font-weight:600; letter-spacing:1px; }
 .customer-name { font-size:15px; font-weight:700; margin-top:2px; word-break:break-word; overflow-wrap:anywhere; }
@@ -85,6 +92,7 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 <body>
 
 <!-- LOGIN -->
+<div id="toast-container"></div>
 <div id="login-screen" style="position:fixed;inset:0;background:#0d0d0d;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px">
   <div style="font-size:10px;letter-spacing:4px;color:#a78bfa;text-transform:uppercase;margin-bottom:8px">Ideer Store</div>
   <div style="font-size:22px;font-weight:700;color:#f5f0eb;margin-bottom:4px">Confirmations</div>
@@ -4366,6 +4374,9 @@ function renderFirebaseCard(day, orderId, data) {
 
   panel.querySelector('.action-btns').before(card);
 
+  // Notification
+  showToast(data.name || 'Client', orderId, data.city || '');
+
   // Écouter les changements de statut/note pour cette carte
   onValue(fbRef(day, orderId), snap => {
     cache[day + '_' + orderId] = snap.val() || {};
@@ -4374,6 +4385,25 @@ function renderFirebaseCard(day, orderId, data) {
     updateTabBadge(day);
     updateGlobalStats();
   });
+}
+
+function showToast(name, orderId, city) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML =
+    `<span class="toast-icon">📦</span>
+     <div class="toast-body">
+       <div class="toast-title">Nouvelle commande</div>
+       <div class="toast-msg"><strong>#${orderId}</strong> — ${name}${city ? ' · ' + city : ''}</div>
+     </div>`;
+  container.appendChild(t);
+  requestAnimationFrame(() => { requestAnimationFrame(() => { t.classList.add('show'); }); });
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 400);
+  }, 5000);
 }
 
 function listenForNewOrders() {
