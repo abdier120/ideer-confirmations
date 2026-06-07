@@ -4381,8 +4381,12 @@ function renderFirebaseCard(day, orderId, data) {
 
   panel.querySelector('.action-btns').before(card);
 
-  // Notification
-  showToast(data.name || 'Client', orderId, data.city || '');
+  // Notification uniquement si pas encore vue par cet utilisateur
+  const seen = getSeenOrders();
+  if (!seen.has(String(orderId))) {
+    showToast(data.name || 'Client', orderId, data.city || '');
+    markOrderSeen(orderId);
+  }
 
   // Écouter les changements de statut/note pour cette carte
   onValue(fbRef(day, orderId), snap => {
@@ -4392,6 +4396,16 @@ function renderFirebaseCard(day, orderId, data) {
     updateTabBadge(day);
     updateGlobalStats();
   });
+}
+
+function getSeenOrders() {
+  try { return new Set(JSON.parse(localStorage.getItem('ideer_seen_' + currentUser) || '[]')); }
+  catch { return new Set(); }
+}
+function markOrderSeen(orderId) {
+  const seen = getSeenOrders();
+  seen.add(String(orderId));
+  try { localStorage.setItem('ideer_seen_' + currentUser, JSON.stringify([...seen].slice(-1000))); } catch {}
 }
 
 function showToast(name, orderId, city) {
