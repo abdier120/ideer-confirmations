@@ -1588,9 +1588,10 @@ function renderFirebaseCard(day, orderId, data) {
 
   panel.querySelector('.action-btns').before(card);
 
-  // Notification uniquement si pas encore vue par cet utilisateur
+  // Notification uniquement si commande RÉCENTE (< 2 min) et pas déjà vue
   const seen = getSeenOrders();
-  if (!seen.has(String(orderId))) {
+  const isRecent = data.createdAt && (Date.now() - data.createdAt < 2 * 60 * 1000);
+  if (isRecent && !seen.has(String(orderId))) {
     showToast(data.name || 'Client', orderId, data.city || '');
     markOrderSeen(orderId);
   }
