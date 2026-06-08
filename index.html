@@ -93,10 +93,16 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .reset-btn { flex:1; background:transparent; border:1px solid #3f3f46; border-radius:8px; padding:9px; color:#6b7280; font-size:11px; cursor:pointer; font-family:Georgia,serif; }
 .archive-btn { flex:1; background:transparent; border:1px solid #a78bfa; border-radius:8px; padding:9px; color:#a78bfa; font-size:11px; cursor:pointer; font-family:Georgia,serif; font-weight:600; }
 .sync-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#6b7280; margin-left:6px; vertical-align:middle; transition:background .3s; }
-.profit-box { background:linear-gradient(135deg,#0f2922,#14241e); border:1px solid #1f6f54; border-radius:14px; padding:13px 16px; margin:10px 0; color:#86efac; font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:8px; font-family:Georgia,serif; }
-.profit-box .profit-label { display:flex; flex-direction:column; gap:2px; }
-.profit-box .profit-sub { color:#6b7280; font-size:10px; }
-.profit-box strong { color:#34d399; font-size:19px; white-space:nowrap; }
+.profit-box { background:linear-gradient(135deg,#0f2922,#14241e); border:1px solid #1f6f54; border-radius:14px; padding:14px 16px; margin:10px 0; font-family:Georgia,serif; }
+.profit-header { display:flex; justify-content:space-between; align-items:center; color:#86efac; font-size:13px; margin-bottom:10px; }
+.profit-sub { color:#6b7280; font-size:10px; }
+.profit-lines { display:flex; flex-direction:column; gap:7px; }
+.profit-line { display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#9ca3af; }
+.profit-line .ads-cell { color:#d4a574; }
+.profit-line.net { border-top:1px solid #1f6f54; padding-top:9px; margin-top:2px; color:#86efac; font-size:14px; }
+.profit-line.net strong { color:#34d399; font-size:20px; white-space:nowrap; }
+.ads-input { width:64px; background:#0d1f18; border:1px solid #3f6f54; border-radius:8px; padding:4px 8px; color:#d4a574; font-size:13px; text-align:right; font-family:Georgia,serif; }
+.ads-input:focus { outline:none; border-color:#34d399; }
 .sync-dot.ok { background:#34d399; }
 .sync-dot.err { background:#f87171; }
 .footer { text-align:center; color:#374151; font-size:11px; padding:16px 0 24px; }
@@ -1282,6 +1288,7 @@ onAuthStateChanged(auth, user => {
     });
     // Nettoyer les boutons admin de la session précédente
     document.querySelectorAll('.delete-day-btn').forEach(b => b.remove());
+    document.querySelectorAll('.profit-box').forEach(b => b.remove());
     initAll();
   } else {
     currentUser = '';
@@ -1752,38 +1759,72 @@ function applyCard(day,order){
 
 function getOrderIds(day){ const panel=document.getElementById('day-'+day); if(!panel) return []; return Array.from(panel.querySelectorAll('.card')).map(c=>c.id.replace('card-'+day+'-','')); }
 
+let adsCosts = {};
+
+function ensureProfitBox(day){
+  const panel=document.getElementById('day-'+day);
+  if(!panel || document.getElementById('profit-'+day)) return;
+  const box=document.createElement('div');
+  box.id='profit-'+day;
+  box.className='profit-box';
+  const isAdmin = currentUser === 'Abdou';
+  const adsField = isAdmin
+    ? '<input type="number" inputmode="numeric" id="profit-ads-input-'+day+'" class="ads-input" placeholder="0" min="0" onchange="saveAdsCost(\''+day+'\',this.value)"> DH'
+    : '<span id="profit-ads-'+day+'">0</span> DH';
+  box.innerHTML=
+    '<div class="profit-header"><span>💰 Profit net du jour</span><span class="profit-sub" id="profit-count-'+day+'"></span></div>'+
+    '<div class="profit-lines">'+
+      '<div class="profit-line"><span>Profit avant pub</span><span id="profit-gross-'+day+'">0 DH</span></div>'+
+      '<div class="profit-line"><span>📣 Coût pub</span><span class="ads-cell">'+adsField+'</span></div>'+
+      '<div class="profit-line net"><span>Profit net</span><strong id="profit-net-'+day+'">0 DH</strong></div>'+
+    '</div>';
+  const progWrap=panel.querySelector('.progress-wrap');
+  if(progWrap) progWrap.after(box); else panel.querySelector('.stats')?.after(box);
+}
+
 function updateProfit(day){
   const panel=document.getElementById('day-'+day);
   if(!panel) return;
+  ensureProfitBox(day);
   const ids=getOrderIds(day);
-  let profit=0, confirmedCount=0;
+  let gross=0, confirmedCount=0;
   ids.forEach(id=>{
     if(getState(day,id).status!=='confirmed') return;
     const card=document.getElementById('card-'+day+'-'+id);
     if(!card) return;
     confirmedCount++;
-    // Revenu = total payé par le client (après réduction)
     const totalEl=card.querySelector('.montant-line.total span:last-child');
     const revenue=totalEl?(parseInt(totalEl.textContent.replace(/[^\d]/g,''))||0):0;
-    // Coût fournisseur par sac : 95 DH pour Victoria/Luna/Sofia, sinon 65 DH
     let cost=0;
     card.querySelectorAll('.item-name').forEach(item=>{
       const name=item.textContent.toLowerCase();
       const is189=/victoria élégance|luna élégance|sofia élégance/.test(name);
       cost+=is189?95:65;
     });
-    // Livraison : 30 DH par commande
-    profit+=revenue-cost-30;
+    gross+=revenue-cost-30;
   });
-  let box=document.getElementById('profit-'+day);
-  if(!box){
-    box=document.createElement('div');
-    box.id='profit-'+day;
-    box.className='profit-box';
-    const progWrap=panel.querySelector('.progress-wrap');
-    if(progWrap) progWrap.after(box); else panel.querySelector('.stats')?.after(box);
-  }
-  box.innerHTML='<div class="profit-label"><span>💰 Profit net du jour</span><span class="profit-sub">'+confirmedCount+' commande'+(confirmedCount>1?'s':'')+' confirmée'+(confirmedCount>1?'s':'')+'</span></div><strong>'+profit+' DH</strong>';
+  const ads=parseInt(adsCosts[day])||0;
+  const net=gross-ads;
+  const setTxt=(id,val)=>{ const e=document.getElementById(id); if(e) e.textContent=val; };
+  setTxt('profit-gross-'+day, gross+' DH');
+  setTxt('profit-net-'+day, net+' DH');
+  setTxt('profit-count-'+day, confirmedCount+' commande'+(confirmedCount>1?'s':'')+' confirmée'+(confirmedCount>1?'s':''));
+  const adsInput=document.getElementById('profit-ads-input-'+day);
+  if(adsInput && document.activeElement!==adsInput) adsInput.value = ads || '';
+  const adsSpan=document.getElementById('profit-ads-'+day);
+  if(adsSpan) adsSpan.textContent = ads;
+}
+
+window.saveAdsCost = function(day, value){
+  if(currentUser !== 'Abdou') return;
+  set(ref(db, 'settings/adsCost/' + day), parseInt(value)||0);
+};
+
+function listenAdsCosts(){
+  onValue(ref(db, 'settings/adsCost'), snap => {
+    adsCosts = snap.val() || {};
+    document.querySelectorAll('.day-panel').forEach(p => updateProfit(p.id.replace('day-','')));
+  });
 }
 
 function updateStats(day){
@@ -1984,7 +2025,7 @@ function makePhoneClickable() {
   });
 }
 
-function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); makePhoneClickable(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenDeletedDays(); listenForNewOrders(); setupAdminButtons(); }
+function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); makePhoneClickable(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenDeletedDays(); listenForNewOrders(); setupAdminButtons(); listenAdsCosts(); }
 
 // Auth géré par Firebase onAuthStateChanged
 </script>
