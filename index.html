@@ -4348,7 +4348,9 @@ function renderFirebaseCard(day, orderId, data) {
 
   const items = Array.isArray(data.items) ? data.items : [];
   const rows = items.map(it => {
-    const img = it.img || getVariantImage(it.name || it.disp || '', it.color || '', '');
+    // On recalcule l'image depuis le mapping de l'outil (source fiable),
+    // l'image Firebase ne sert que de dernier recours
+    const img = getVariantImage(it.name || it.disp || '', it.color || '', it.img || '');
     return `<div class="item-row"><img class="item-img" src="${img}" alt=""><span class="item-name">🛍 ${it.disp||it.name||''}</span></div>`;
   }).join('');
 
