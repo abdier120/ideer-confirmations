@@ -63,6 +63,8 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .customer-name { font-size:15px; font-weight:700; margin-top:2px; word-break:break-word; overflow-wrap:anywhere; }
 .customer-city { color:#6b7280; font-size:11px; margin-top:2px; line-height:1.5; word-break:break-word; overflow-wrap:anywhere; }
 .customer-phone { color:#a78bfa; font-size:11px; margin-top:1px; }
+.customer-phone a { color:#a78bfa; text-decoration:none; }
+.customer-phone a:active { opacity:.7; }
 .wa-btn { background:#22c55e; color:#fff; border-radius:10px; width:46px; height:46px; font-size:22px; display:flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; box-shadow:0 0 14px rgba(34,197,94,.35); }
 .item-row { display:flex; align-items:center; gap:8px; background:#0d0d0d; border-radius:8px; padding:6px 8px; margin-bottom:5px; }
 .item-img { width:44px; height:44px; object-fit:cover; border-radius:6px; flex-shrink:0; background:#1f1f1f; }
@@ -4377,7 +4379,7 @@ function renderFirebaseCard(day, orderId, data) {
         <div class="order-id">#${displayId} <span class="badge-status" id="badge-${day}-${orderId}"></span></div>
         <div class="customer-name">${data.name||'Client'}</div>
         <div class="customer-city">📍 ${data.cityLine||data.city||''}</div>
-        <div class="customer-phone">📞 ${data.phone||''}</div>
+        <div class="customer-phone">📞 <a href="tel:${data.phone||''}">${data.phone||''}</a></div>
       </div>
       <a class="wa-btn" href="${data.wa||'#'}">💬</a>
     </div>
@@ -4837,7 +4839,16 @@ function fixVariantImages(){
   });
 }
 
-function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenDeletedDays(); listenForNewOrders(); setupAdminButtons(); }
+function makePhoneClickable() {
+  document.querySelectorAll('.customer-phone').forEach(el => {
+    if (el.querySelector('a')) return; // déjà fait
+    const full = el.textContent.trim().replace('📞','').trim();
+    if (!full) return;
+    el.innerHTML = '📞 <a href="tel:' + full + '">' + full + '</a>';
+  });
+}
+
+function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); makePhoneClickable(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenDeletedDays(); listenForNewOrders(); setupAdminButtons(); }
 
 // Auth géré par Firebase onAuthStateChanged
 </script>
