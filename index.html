@@ -86,6 +86,8 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .saved-badge.show { opacity:1; }
 .badge-status { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:99px; margin-left:6px; vertical-align:middle; }
 .action-btns { display:flex; gap:8px; margin-top:4px; }
+.delete-day-btn { flex:1; background:transparent; border:1px solid #3f1515; border-radius:10px; padding:10px; color:#f87171; font-size:12px; cursor:pointer; font-family:Georgia,serif; transition:all .2s; }
+.delete-day-btn:hover { background:#3f1515; }
 .reset-btn { flex:1; background:transparent; border:1px solid #3f3f46; border-radius:8px; padding:9px; color:#6b7280; font-size:11px; cursor:pointer; font-family:Georgia,serif; }
 .archive-btn { flex:1; background:transparent; border:1px solid #a78bfa; border-radius:8px; padding:9px; color:#a78bfa; font-size:11px; cursor:pointer; font-family:Georgia,serif; font-weight:600; }
 .sync-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#6b7280; margin-left:6px; vertical-align:middle; transition:background .3s; }
@@ -4086,6 +4088,7 @@ onAuthStateChanged(auth, user => {
       });
     });
     initAll();
+    if (currentUser === 'Abdou') setTimeout(setupAdminButtons, 800);
   } else {
     currentUser = '';
     document.getElementById('login-screen').style.display = 'flex';
@@ -4325,8 +4328,17 @@ function ensureDayExists(day) {
       <button class="reset-btn" onclick="resetDay('${day}')">🗑 Réinitialiser</button>
       <button class="archive-btn" onclick="archiveDay('${day}')">📦 Archiver</button>
     </div>`;
+  // Bouton supprimer pour Abdou
+  if (currentUser === 'Abdou') {
+    const delBtn = document.createElement('button');
+    delBtn.className = 'delete-day-btn';
+    delBtn.textContent = '🗑 Supprimer la journée';
+    delBtn.onclick = () => window.deleteDay(day);
+    panel.querySelector('.action-btns').appendChild(delBtn);
+  }
   const lastPanel = [...document.querySelectorAll('.day-panel')].pop();
   lastPanel ? lastPanel.after(panel) : document.querySelector('.day-panels-wrap')?.appendChild(panel);
+  panel.dataset.firebase = 'true'; // marquer comme panel Firebase
 }
 
 function renderFirebaseCard(day, orderId, data) {
@@ -4335,9 +4347,10 @@ function renderFirebaseCard(day, orderId, data) {
   if (!panel || document.getElementById('card-' + day + '-' + orderId)) return;
 
   const items = Array.isArray(data.items) ? data.items : [];
-  const rows = items.map(it =>
-    `<div class="item-row"><img class="item-img" src="${it.img||''}" alt=""><span class="item-name">🛍 ${it.disp||it.name||''}</span></div>`
-  ).join('');
+  const rows = items.map(it => {
+    const img = it.img || getVariantImage(it.name || it.disp || '', it.color || '', '');
+    return `<div class="item-row"><img class="item-img" src="${img}" alt=""><span class="item-name">🛍 ${it.disp||it.name||''}</span></div>`;
+  }).join('');
 
   const n = items.length;
   const displayId = data.mergedWith ? orderId + ' · ' + data.mergedWith : orderId;
@@ -4433,6 +4446,53 @@ function showToast(name, orderId, city) {
   }, 5000);
 }
 
+// ── Admin : supprimer une journée ────────────────────────────
+function removeDayFromDOM(day) {
+  const panel = document.getElementById('day-' + day);
+  const tab   = document.getElementById('tab-' + day);
+  if (panel) panel.remove();
+  if (tab)   tab.remove();
+  Object.keys(cache).filter(k => k.startsWith(day + '_')).forEach(k => delete cache[k]);
+  updateGlobalStats();
+  const tabs = document.querySelectorAll('.tab');
+  if (tabs.length) { const last = tabs[tabs.length-1]; showDay(last.id.replace('tab-',''), last); }
+}
+
+window.deleteDay = async function(day) {
+  const label = makeDayLabel(day);
+  if (!confirm('Supprimer la journée ' + label + ' ? Les commandes de ce jour seront masquées pour tous (réversible depuis Firebase Console).')) return;
+  await set(ref(db, 'settings/deletedDays/' + day), true);
+  try { await remove(ref(db, 'orders/' + day)); } catch(e) {}
+  removeDayFromDOM(day);
+};
+
+function setupAdminButtons() {
+  if (currentUser !== 'Abdou') return;
+  document.querySelectorAll('.day-panel').forEach(panel => {
+    const day = panel.id.replace('day-', '');
+    const ab = panel.querySelector('.action-btns');
+    if (ab && !ab.querySelector('.delete-day-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'delete-day-btn';
+      btn.textContent = '🗑 Supprimer la journée';
+      btn.onclick = () => window.deleteDay(day);
+      ab.appendChild(btn);
+    }
+  });
+}
+
+function listenDeletedDays() {
+  onValue(ref(db, 'settings/deletedDays'), snap => {
+    const deleted = snap.val() || {};
+    Object.keys(deleted).forEach(day => {
+      if (document.getElementById('day-' + day)) removeDayFromDOM(day);
+    });
+  });
+}
+
+
+let _initialOrdersLoaded = false;
+
 function listenForNewOrders() {
   onValue(ref(db, 'orders'), snap => {
     const allOrders = snap.val() || {};
@@ -4442,6 +4502,15 @@ function listenForNewOrders() {
         if (!document.getElementById('card-' + day + '-' + orderId) && isNewOrder) {
           renderFirebaseCard(day, orderId, orderData);
         }
+      }
+    }
+    // Après le premier chargement Firebase, sélectionner le dernier onglet
+    if (!_initialOrdersLoaded) {
+      _initialOrdersLoaded = true;
+      const tabs = document.querySelectorAll('.tab');
+      if (tabs.length) {
+        const last = tabs[tabs.length - 1];
+        showDay(last.id.replace('tab-', ''), last);
       }
     }
   });
@@ -4766,7 +4835,7 @@ function fixVariantImages(){
   });
 }
 
-function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenForNewOrders(); }
+function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenDeletedDays(); listenForNewOrders(); setupAdminButtons(); }
 
 // Auth géré par Firebase onAuthStateChanged
 </script>
