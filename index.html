@@ -4089,13 +4089,16 @@ onAuthStateChanged(auth, user => {
         }
       });
     });
+    // Nettoyer les boutons admin de la session précédente
+    document.querySelectorAll('.delete-day-btn').forEach(b => b.remove());
     initAll();
-    if (currentUser === 'Abdou') setTimeout(setupAdminButtons, 800);
   } else {
     currentUser = '';
     document.getElementById('login-screen').style.display = 'flex';
     const badge = document.getElementById('user-badge');
     if (badge) badge.style.display = 'none';
+    // Nettoyer les boutons admin à la déconnexion
+    document.querySelectorAll('.delete-day-btn').forEach(b => b.remove());
   }
 });
 
@@ -4472,7 +4475,7 @@ window.deleteDay = async function(day) {
 
 function setupAdminButtons() {
   if (currentUser !== 'Abdou') return;
-  document.querySelectorAll('.day-panel').forEach(panel => {
+  document.querySelectorAll('.day-panel[data-firebase="true"]').forEach(panel => {
     const day = panel.id.replace('day-', '');
     const ab = panel.querySelector('.action-btns');
     if (ab && !ab.querySelector('.delete-day-btn')) {
