@@ -93,6 +93,10 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .reset-btn { flex:1; background:transparent; border:1px solid #3f3f46; border-radius:8px; padding:9px; color:#6b7280; font-size:11px; cursor:pointer; font-family:Georgia,serif; }
 .archive-btn { flex:1; background:transparent; border:1px solid #a78bfa; border-radius:8px; padding:9px; color:#a78bfa; font-size:11px; cursor:pointer; font-family:Georgia,serif; font-weight:600; }
 .sync-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#6b7280; margin-left:6px; vertical-align:middle; transition:background .3s; }
+.profit-box { background:linear-gradient(135deg,#0f2922,#14241e); border:1px solid #1f6f54; border-radius:14px; padding:13px 16px; margin:10px 0; color:#86efac; font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:8px; font-family:Georgia,serif; }
+.profit-box .profit-label { display:flex; flex-direction:column; gap:2px; }
+.profit-box .profit-sub { color:#6b7280; font-size:10px; }
+.profit-box strong { color:#34d399; font-size:19px; white-space:nowrap; }
 .sync-dot.ok { background:#34d399; }
 .sync-dot.err { background:#f87171; }
 .footer { text-align:center; color:#374151; font-size:11px; padding:16px 0 24px; }
@@ -1748,6 +1752,40 @@ function applyCard(day,order){
 
 function getOrderIds(day){ const panel=document.getElementById('day-'+day); if(!panel) return []; return Array.from(panel.querySelectorAll('.card')).map(c=>c.id.replace('card-'+day+'-','')); }
 
+function updateProfit(day){
+  const panel=document.getElementById('day-'+day);
+  if(!panel) return;
+  const ids=getOrderIds(day);
+  let profit=0, confirmedCount=0;
+  ids.forEach(id=>{
+    if(getState(day,id).status!=='confirmed') return;
+    const card=document.getElementById('card-'+day+'-'+id);
+    if(!card) return;
+    confirmedCount++;
+    // Revenu = total payé par le client (après réduction)
+    const totalEl=card.querySelector('.montant-line.total span:last-child');
+    const revenue=totalEl?(parseInt(totalEl.textContent.replace(/[^\d]/g,''))||0):0;
+    // Coût fournisseur par sac : 95 DH pour Victoria/Luna/Sofia, sinon 65 DH
+    let cost=0;
+    card.querySelectorAll('.item-name').forEach(item=>{
+      const name=item.textContent.toLowerCase();
+      const is189=/victoria élégance|luna élégance|sofia élégance/.test(name);
+      cost+=is189?95:65;
+    });
+    // Livraison : 30 DH par commande
+    profit+=revenue-cost-30;
+  });
+  let box=document.getElementById('profit-'+day);
+  if(!box){
+    box=document.createElement('div');
+    box.id='profit-'+day;
+    box.className='profit-box';
+    const progWrap=panel.querySelector('.progress-wrap');
+    if(progWrap) progWrap.after(box); else panel.querySelector('.stats')?.after(box);
+  }
+  box.innerHTML='<div class="profit-label"><span>💰 Profit net du jour</span><span class="profit-sub">'+confirmedCount+' commande'+(confirmedCount>1?'s':'')+' confirmée'+(confirmedCount>1?'s':'')+'</span></div><strong>'+profit+' DH</strong>';
+}
+
 function updateStats(day){
   const ids=getOrderIds(day); let pending=0,confirmed=0,other=0;
   ids.forEach(id=>{ const s=getState(day,id).status; if(!s) pending++; else if(s==='confirmed') confirmed++; else other++; });
@@ -1757,6 +1795,7 @@ function updateStats(day){
   if(el('cnt-'+day+'-other')) el('cnt-'+day+'-other').textContent=other;
   const prog=el('prog-'+day); const total=ids.length;
   if(prog) prog.style.width=total?Math.round(((total-pending)/total)*100)+'%':'0%';
+  updateProfit(day);
 }
 
 function updateTabBadge(day){
