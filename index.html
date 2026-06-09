@@ -1432,6 +1432,13 @@ const VARIANT_IMAGES = {
     "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage30mai2026_02_32_48.png?v=1780107741&width=150",
     "beige": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage30mai2026_02_30_31.png?v=1780107741&width=150",
   },
+  "Sac Amélia Élégance": {
+    "noir":            "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9juin2026_02_37_33.png?v=1780969715&width=150",
+    "bordeaux":        "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9juin2026_02_39_25.png?v=1780969715&width=150",
+    "marron chocolat": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9juin2026_02_42_00.png?v=1780969715&width=150",
+    "blanc casse":     "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9juin2026_02_44_18.png?v=1780969715&width=150",
+    "blanc cassé":     "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9juin2026_02_44_18.png?v=1780969715&width=150",
+  },
 };
 
 // Normalise un nom de produit du PDF vers une clé du dictionnaire
@@ -1450,6 +1457,7 @@ function findProductKey(itemName){
   if(n.includes('victoria')) return 'Sac Victoria Élégance';
   if(n.includes('sofia')) return 'Sac Sofia Élégance';
   if(n.includes('luna')) return 'Sac Luna Élégance';
+  if(n.includes('amélia')||n.includes('amelia')) return 'Sac Amélia Élégance';
   return null;
 }
 
@@ -1798,7 +1806,7 @@ function updateProfit(day){
     let cost=0;
     card.querySelectorAll('.item-name').forEach(item=>{
       const name=item.textContent.toLowerCase();
-      const is189=/victoria élégance|luna élégance|sofia élégance/.test(name);
+      const is189=/victoria élégance|luna élégance|sofia élégance|amélia élégance/.test(name);
       cost+=is189?95:65;
     });
     gross+=revenue-cost-30;
