@@ -103,6 +103,17 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .profit-line.net strong { color:#34d399; font-size:20px; white-space:nowrap; }
 .ads-input { width:64px; background:#0d1f18; border:1px solid #3f6f54; border-radius:8px; padding:4px 8px; color:#d4a574; font-size:13px; text-align:right; font-family:Georgia,serif; }
 .ads-input:focus { outline:none; border-color:#34d399; }
+.edit-order-btn { width:100%; background:transparent; border:1px dashed #3f3f46; border-radius:10px; padding:9px; color:#a78bfa; font-size:12px; cursor:pointer; margin-bottom:10px; font-family:Georgia,serif; }
+.edit-order-btn:active { background:#1a1a2e; }
+.order-editor { background:#0d0d0d; border:1px solid #27272a; border-radius:10px; padding:10px; margin-bottom:10px; }
+.editor-items { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+.editor-item { display:flex; justify-content:space-between; align-items:center; background:#18181b; border-radius:8px; padding:7px 10px; font-size:12px; color:#e5e5e5; gap:8px; }
+.editor-item em { color:#6b7280; font-style:normal; font-size:11px; }
+.editor-remove { background:#3f1515; border:none; color:#f87171; width:26px; height:26px; border-radius:6px; cursor:pointer; flex-shrink:0; font-size:13px; }
+.editor-empty { color:#6b7280; font-size:12px; text-align:center; padding:6px; }
+.editor-add { display:flex; gap:6px; flex-wrap:wrap; align-items:stretch; }
+.editor-select { flex:1; min-width:88px; background:#18181b; border:1px solid #3f3f46; border-radius:8px; padding:8px; color:#e5e5e5; font-size:12px; }
+.editor-add-btn { background:#7c3aed; border:none; color:#fff; border-radius:8px; padding:8px 12px; font-size:12px; cursor:pointer; font-family:Georgia,serif; white-space:nowrap; }
 .sync-dot.ok { background:#34d399; }
 .sync-dot.err { background:#f87171; }
 .footer { text-align:center; color:#374151; font-size:11px; padding:16px 0 24px; }
@@ -1762,8 +1773,120 @@ function applyCard(day,order){
   if(badge){ if(st.status&&STATUS_CFG[st.status]){ const c=STATUS_CFG[st.status]; badge.textContent=c.label; badge.style.cssText=`background:${c.bg};color:${c.color};padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600`; } else { badge.textContent=''; badge.style.cssText=''; } }
   const ta=document.getElementById('note-'+day+'-'+order);
   if(ta&&st.note){ ta.value=st.note; ta.classList.add('has-note'); }
+  ensureEditor(day,order);
+  if(Array.isArray(st.editedItems)) renderCardItems(day,order,st.editedItems);
+  const ed=document.getElementById('editor-'+day+'-'+order);
+  if(ed&&ed.style.display==='block') renderEditorItems(day,order);
   updateStats(day); updateTabBadge(day); updateGlobalStats();
 }
+
+// ====== ÉDITEUR DE COMMANDE (ajout / retrait de sacs) ======
+function priceForName(name){
+  return /victoria élégance|luna élégance|sofia élégance|amélia élégance/.test((name||'').toLowerCase()) ? 189 : 149;
+}
+function recalcMontant(items){
+  const n=items.length;
+  const subtotal=items.reduce((s,it)=>s+(it.price||priceForName(it.name)),0);
+  const reduc=n>=2?24*n:0;
+  return {n, subtotal, reduc, total:subtotal-reduc};
+}
+function parseCardItems(day,order){
+  const card=document.getElementById('card-'+day+'-'+order); const items=[];
+  if(!card) return items;
+  card.querySelectorAll('.item-name').forEach(el=>{
+    let txt=el.textContent.replace('🛍','').trim();
+    const i=txt.lastIndexOf('–');
+    let name,color;
+    if(i>=0){ name=txt.slice(0,i).trim(); color=txt.slice(i+1).trim(); } else { name=txt; color=''; }
+    items.push({name,color,price:priceForName(name)});
+  });
+  return items;
+}
+function getCurrentItems(day,order){
+  const st=getState(day,order);
+  if(Array.isArray(st.editedItems)) return st.editedItems.map(x=>({name:x.name,color:x.color,price:x.price||priceForName(x.name)}));
+  return parseCardItems(day,order);
+}
+function saveItems(day,order,items){ set(ref(db,'orders/'+day+'/'+order+'/editedItems'), items); }
+
+function renderCardItems(day,order,items){
+  const card=document.getElementById('card-'+day+'-'+order); if(!card) return;
+  const montantBox=card.querySelector('.montant-box'); if(!montantBox) return;
+  card.querySelectorAll('.item-row').forEach(r=>r.remove());
+  items.forEach(it=>{
+    const img=getVariantImage(it.name,it.color,'');
+    const row=document.createElement('div'); row.className='item-row';
+    row.innerHTML='<img class="item-img" src="'+img+'" alt=""><span class="item-name">🛍 '+it.name+(it.color?' – '+it.color:'')+'</span>';
+    montantBox.before(row);
+  });
+  const m=recalcMontant(items);
+  if(m.n<=1){
+    montantBox.innerHTML='<div class="montant-line"><span>Sac × '+m.n+'</span><span>'+m.subtotal+' DH</span></div>'+
+      '<div class="montant-line total"><span>Total commande</span><span>'+m.total+' DH</span></div>';
+  } else {
+    montantBox.innerHTML='<div class="montant-line"><span>'+m.n+' sacs</span><span>'+m.subtotal+' DH</span></div>'+
+      '<div class="montant-line reduction"><span>🎁 Réduction ('+m.n+' sacs × 24 DH)</span><span>– '+m.reduc+' DH</span></div>'+
+      '<div class="montant-line total"><span>Total commande</span><span>'+m.total+' DH</span></div>';
+  }
+}
+
+function ensureEditor(day,order){
+  const card=document.getElementById('card-'+day+'-'+order);
+  if(!card || card.querySelector('.edit-order-btn')) return;
+  const montantBox=card.querySelector('.montant-box'); if(!montantBox) return;
+  const btn=document.createElement('button');
+  btn.className='edit-order-btn'; btn.textContent='✏️ Modifier la commande';
+  btn.onclick=()=>window.toggleEditor(day,order);
+  const editor=document.createElement('div');
+  editor.className='order-editor'; editor.id='editor-'+day+'-'+order; editor.style.display='none';
+  const modelOpts=Object.keys(VARIANT_IMAGES).map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+  editor.innerHTML=
+    '<div class="editor-items" id="editor-items-'+day+'-'+order+'"></div>'+
+    '<div class="editor-add">'+
+      '<select class="editor-select" id="edit-model-'+day+'-'+order+'" onchange="onEditorModelChange(\''+day+'\',\''+order+'\')">'+modelOpts+'</select>'+
+      '<select class="editor-select" id="edit-color-'+day+'-'+order+'"></select>'+
+      '<button class="editor-add-btn" onclick="addItemToOrder(\''+day+'\',\''+order+'\')">➕ Ajouter</button>'+
+    '</div>';
+  montantBox.after(editor); montantBox.after(btn);
+  window.onEditorModelChange(day,order);
+}
+window.toggleEditor=function(day,order){
+  ensureEditor(day,order);
+  const ed=document.getElementById('editor-'+day+'-'+order); if(!ed) return;
+  const show=ed.style.display==='none';
+  ed.style.display=show?'block':'none';
+  if(show) renderEditorItems(day,order);
+};
+window.onEditorModelChange=function(day,order){
+  const ms=document.getElementById('edit-model-'+day+'-'+order);
+  const cs=document.getElementById('edit-color-'+day+'-'+order);
+  if(!ms||!cs) return;
+  const colors=Object.keys(VARIANT_IMAGES[ms.value]||{});
+  cs.innerHTML=colors.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+};
+function renderEditorItems(day,order){
+  const box=document.getElementById('editor-items-'+day+'-'+order); if(!box) return;
+  const items=getCurrentItems(day,order);
+  if(!items.length){ box.innerHTML='<div class="editor-empty">Aucun sac dans la commande</div>'; return; }
+  box.innerHTML=items.map((it,i)=>
+    '<div class="editor-item"><span>🛍 '+it.name+(it.color?' – '+it.color:'')+' <em>('+it.price+' DH)</em></span>'+
+    '<button class="editor-remove" onclick="removeItemFromOrder(\''+day+'\',\''+order+'\','+i+')">✕</button></div>'
+  ).join('');
+}
+window.addItemToOrder=function(day,order){
+  const ms=document.getElementById('edit-model-'+day+'-'+order);
+  const cs=document.getElementById('edit-color-'+day+'-'+order);
+  if(!ms) return;
+  const items=getCurrentItems(day,order);
+  items.push({name:ms.value, color:cs?cs.value:'', price:priceForName(ms.value)});
+  saveItems(day,order,items); renderEditorItems(day,order);
+};
+window.removeItemFromOrder=function(day,order,idx){
+  const items=getCurrentItems(day,order);
+  if(idx<0||idx>=items.length) return;
+  items.splice(idx,1);
+  saveItems(day,order,items); renderEditorItems(day,order);
+};
 
 function getOrderIds(day){ const panel=document.getElementById('day-'+day); if(!panel) return []; return Array.from(panel.querySelectorAll('.card')).map(c=>c.id.replace('card-'+day+'-','')); }
 
