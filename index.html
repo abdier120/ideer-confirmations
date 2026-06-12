@@ -578,7 +578,13 @@ function ensureDayExists(day) {
     panel.querySelector('.action-btns').appendChild(delBtn);
   }
   const lastPanel = [...document.querySelectorAll('.day-panel')].pop();
-  lastPanel ? lastPanel.after(panel) : document.querySelector('.day-panels-wrap')?.appendChild(panel);
+  if (lastPanel) {
+    lastPanel.after(panel);
+  } else {
+    const footer = document.querySelector('.footer');
+    if (footer) footer.before(panel);
+    else document.body.appendChild(panel);
+  }
   panel.dataset.firebase = 'true'; // marquer comme panel Firebase
 }
 
