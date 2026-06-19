@@ -115,6 +115,7 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 .editor-select { flex:1; min-width:88px; background:#18181b; border:1px solid #3f3f46; border-radius:8px; padding:8px; color:#e5e5e5; font-size:12px; }
 .editor-add-btn { background:#7c3aed; border:none; color:#fff; border-radius:8px; padding:8px 12px; font-size:12px; cursor:pointer; font-family:Georgia,serif; white-space:nowrap; }
 .sync-dot.ok { background:#34d399; }
+.sync-dot.reconnect { background:#fbbf24; }
 .sync-dot.err { background:#f87171; }
 .footer { text-align:center; color:#374151; font-size:11px; padding:16px 0 24px; }
 </style>
@@ -259,7 +260,7 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, set, onValue, remove, onDisconnect, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -298,10 +299,18 @@ onAuthStateChanged(auth, user => {
     const presenceRef = ref(db, 'presence/' + currentUser);
     onValue(ref(db, '.info/connected'), (snap) => {
       const connected = snap.val() === true;
-      setSyncDot(connected);
       if (connected) {
+        clearTimeout(_disconnectTimer);
+        setSyncDot('ok');
+        hideOfflineBanner();
         onDisconnect(presenceRef).set(false);
         set(presenceRef, true);
+      } else {
+        // Coupure : afficher d'abord "reconnexion" (amber), rouge seulement après 5s
+        setSyncDot('reconnect');
+        showOfflineBanner();
+        clearTimeout(_disconnectTimer);
+        _disconnectTimer = setTimeout(() => setSyncDot('err'), 5000);
       }
     });
     // Écouter la présence de toutes les filles
@@ -334,6 +343,19 @@ window.doSignOut = function(){
   if(currentUser) set(ref(db, 'presence/' + currentUser), false);
   signOut(auth).catch(()=>{});
 };
+
+// Reconnexion forcée quand l'app revient au premier plan (fix iOS Safari)
+let _lastVisibilityReconnect = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    const now = Date.now();
+    if (now - _lastVisibilityReconnect < 2000) return; // anti-spam
+    _lastVisibilityReconnect = now;
+    try { goOffline(db); setTimeout(() => { try { goOnline(db); } catch(e){} }, 300); } catch(e){}
+  }
+});
+// Reconnexion aussi quand le navigateur détecte le retour du réseau
+window.addEventListener('online', () => { try { goOffline(db); setTimeout(()=>{ try{ goOnline(db); }catch(e){} }, 300); } catch(e){} });
 
 
 
@@ -519,7 +541,22 @@ let currentFilter = 'all';
 
 function fbRef(day, order) { return ref(db, `orders/${day}/${order}`); }
 function archRef(day) { return ref(db, `archives/${day}`); }
-function setSyncDot(ok) { const d=document.getElementById('sync-dot'); if(d) d.className='sync-dot '+(ok?'ok':'err'); }
+let _disconnectTimer = null;
+function setSyncDot(state){
+  if(state===true) state='ok';
+  if(state===false) state='err';
+  const d=document.getElementById('sync-dot');
+  if(d) d.className='sync-dot '+state;
+}
+function showOfflineBanner(){
+  if(document.getElementById('offline-banner')) return;
+  const b=document.createElement('div');
+  b.id='offline-banner';
+  b.style.cssText='position:fixed;top:0;left:0;right:0;background:#78350f;color:#fde68a;text-align:center;padding:7px;font-size:12px;z-index:10000;font-family:Georgia,serif;';
+  b.textContent='⚠️ Reconnexion en cours...';
+  document.body.appendChild(b);
+}
+function hideOfflineBanner(){ const b=document.getElementById('offline-banner'); if(b) b.remove(); }
 
 function listenDay(day) {
   document.querySelectorAll(`.card[data-day="${day}"]`).forEach(card => {
@@ -743,8 +780,32 @@ function listenDeletedDays() {
 
 let _initialOrdersLoaded = false;
 
+function showLoadingMessage(){
+  const existing = document.getElementById('loading-msg');
+  if (existing) return;
+  const msg = document.createElement('div');
+  msg.id = 'loading-msg';
+  msg.style.cssText = 'text-align:center;color:#6b7280;font-size:13px;padding:40px 20px;font-family:Georgia,serif;';
+  msg.innerHTML = '⏳ Connexion à Firebase en cours...';
+  const footer = document.querySelector('.footer');
+  if (footer) footer.before(msg);
+  // Si toujours pas chargé après 8s, proposer de réessayer
+  setTimeout(() => {
+    const m = document.getElementById('loading-msg');
+    if (m && !_initialOrdersLoaded) {
+      m.innerHTML = '⚠️ La connexion prend plus de temps que prévu.<br><button onclick="location.reload()" style="margin-top:12px;background:#7c3aed;border:none;color:#fff;border-radius:10px;padding:10px 20px;font-size:13px;cursor:pointer;font-family:Georgia,serif">🔄 Réessayer</button>';
+    }
+  }, 8000);
+}
+function hideLoadingMessage(){
+  const msg = document.getElementById('loading-msg');
+  if (msg) msg.remove();
+}
+
 function listenForNewOrders() {
+  showLoadingMessage();
   onValue(ref(db, 'orders'), snap => {
+    hideLoadingMessage();
     const allOrders = snap.val() || {};
     for (const [day, dayOrders] of Object.entries(allOrders)) {
       for (const [orderId, orderData] of Object.entries(dayOrders)) {
@@ -1146,10 +1207,10 @@ function makePhoneClickable() {
   });
 }
 
-function initAll(){ document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); makePhoneClickable(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenDeletedDays(); listenForNewOrders(); setupAdminButtons(); listenAdsCosts(); }
+function initAll(){
+  _initialOrdersLoaded = false; document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); makePhoneClickable(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenDeletedDays(); listenForNewOrders(); setupAdminButtons(); listenAdsCosts(); }
 
 // Auth géré par Firebase onAuthStateChanged
 </script>
 </body>
 </html>
-
