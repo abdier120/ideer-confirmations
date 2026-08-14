@@ -410,6 +410,16 @@ const VARIANT_IMAGES = {
     "rose": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_22_juil._2026_23_59_32.png?v=1784761697&width=150",
     "bleu ciel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_12_juil._2026_01_52_25.png?v=1783817559&width=150",
   },
+  "Sac Élégance Curve": {
+    "blanc casse": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_14_aout_2026_12_55_32.png?v=1786708605&width=150",
+    "cremy": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage14aout2026_12_46_36.png?v=1786708432&width=150",
+    "blanc": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage14aout2026_12_45_57.png?v=1786708432&width=150",
+    "noir": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage14aout2026_12_44_09.png?v=1786708432&width=150",
+    "vert pastel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage14aout2026_12_39_20.png?v=1786708432&width=150",
+    "camel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage14aout2026_12_36_04.png?v=1786708432&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage14aout2026_12_35_09.png?v=1786708432&width=150",
+    "bleu ciel": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_14_aout_2026_12_55_55.png?v=1786708605&width=150",
+  },
   "Sac Stella Tweed": {
     "noir tweed luxe": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_2_mars_2026_03_06_54.png?v=1778362119&width=150",
     "crème élégant": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2mars2026_02_56_39.png?v=1778362262&width=150",
@@ -522,6 +532,7 @@ function findProductKey(itemName){
   if(n.includes('sofia')) return 'Sac Sofia Élégance';
   if(n.includes('luna')) return 'Sac Luna Élégance';
   if(n.includes('amélia')||n.includes('amelia')) return 'Sac Amélia Élégance';
+  if(n.includes('curve')) return 'Sac Élégance Curve';
   return null;
 }
 
