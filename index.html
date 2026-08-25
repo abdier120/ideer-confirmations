@@ -200,6 +200,12 @@ body { background: #0d0d0d; font-family: Georgia, serif; color: #f5f0eb; min-hei
   </div>
 </div>
 
+<!-- PROFIT 7 DERNIERS JOURS -->
+<div id="weekly-profit" style="margin:10px 14px 0;background:linear-gradient(135deg,#0f2922,#14241e);border:1px solid #1f6f54;border-radius:14px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+  <span style="font-size:11px;letter-spacing:1.5px;color:#86efac;text-transform:uppercase;font-family:Georgia,serif">💰 Profit net — 7 jours</span>
+  <strong id="weekly-total" style="color:#34d399;font-size:20px;font-family:Georgia,serif;white-space:nowrap">0 DH</strong>
+</div>
+
 <!-- CLASSEMENT -->
 <div id="leaderboard" style="margin:10px 14px 0;background:#18181b;border:1px solid #27272a;border-radius:14px;padding:12px 14px">
   <div style="font-size:10px;letter-spacing:3px;color:#a78bfa;text-transform:uppercase;margin-bottom:14px">🏆 Classement confirmations</div>
@@ -1022,10 +1028,7 @@ function ensureProfitBox(day){
   if(progWrap) progWrap.after(box); else panel.querySelector('.stats')?.after(box);
 }
 
-function updateProfit(day){
-  const panel=document.getElementById('day-'+day);
-  if(!panel) return;
-  ensureProfitBox(day);
+function computeDayProfit(day){
   const ids=getOrderIds(day);
   let gross=0, confirmedCount=0;
   ids.forEach(id=>{
@@ -1044,7 +1047,30 @@ function updateProfit(day){
     gross+=revenue-cost-30;
   });
   const ads=parseInt(adsCosts[day])||0;
-  const net=gross-ads;
+  return {gross, ads, net:gross-ads, confirmedCount};
+}
+
+function updateWeeklyProfit(){
+  const totalEl=document.getElementById('weekly-total');
+  if(!totalEl) return;
+  const days=[...document.querySelectorAll('.day-panel')]
+    .map(p=>p.id.replace('day-',''))
+    .filter(d=>/^\d{8}$/.test(d))
+    .sort()
+    .reverse()
+    .slice(0,7);
+  let total=0;
+  days.forEach(d=>{ total+=computeDayProfit(d).net; });
+  totalEl.textContent=total+' DH';
+  totalEl.style.color=total>=0?'#34d399':'#f87171';
+}
+
+function updateProfit(day){
+  const panel=document.getElementById('day-'+day);
+  if(!panel) return;
+  ensureProfitBox(day);
+  const p=computeDayProfit(day);
+  const gross=p.gross, ads=p.ads, net=p.net, confirmedCount=p.confirmedCount;
   const setTxt=(id,val)=>{ const e=document.getElementById(id); if(e) e.textContent=val; };
   setTxt('profit-gross-'+day, gross+' DH');
   setTxt('profit-net-'+day, net+' DH');
@@ -1053,6 +1079,7 @@ function updateProfit(day){
   if(adsInput && document.activeElement!==adsInput) adsInput.value = ads || '';
   const adsSpan=document.getElementById('profit-ads-'+day);
   if(adsSpan) adsSpan.textContent = ads;
+  updateWeeklyProfit();
 }
 
 window.saveAdsCost = function(day, value){
@@ -1231,7 +1258,7 @@ function makePhoneClickable() {
 }
 
 function initAll(){
-  _initialOrdersLoaded = false; document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); makePhoneClickable(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenDeletedDays(); listenForNewOrders(); setupAdminButtons(); listenAdsCosts(); }
+  _initialOrdersLoaded = false; document.querySelectorAll('.day-panel').forEach(p=>{ listenDay(p.id.replace('day-','')); }); fixVariantImages(); makePhoneClickable(); updateGlobalStats(); const tabs=document.querySelectorAll('.tab'); if(tabs.length){ const last=tabs[tabs.length-1]; showDay(last.id.replace('tab-',''),last); } listenDeletedDays(); listenForNewOrders(); setupAdminButtons(); listenAdsCosts(); updateWeeklyProfit(); }
 
 // Auth géré par Firebase onAuthStateChanged
 
