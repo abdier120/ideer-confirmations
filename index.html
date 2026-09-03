@@ -519,11 +519,50 @@ const VARIANT_IMAGES = {
     "blanc casse":     "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9juin2026_02_44_18.png?v=1780969715&width=150",
     "blanc cassé":     "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage9juin2026_02_44_18.png?v=1780969715&width=150",
   },
+  "Sac Élégance – Grand Cabas": {
+    "noir":     "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPT_Image_2_sept._2026_00_37_42.png?v=1788305975&width=150",
+    "bordeaux": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage1sept.2026_23_21_26.png?v=1788304971&width=150",
+  },
+  "Sac Campus – Grand Format Back to School": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage31aout2026_13_50_44.png?v=1788181315&width=150",
+  },
+  "Montre Éclat Ovale Dorée – Bracelet Taupe & Cadran Champagne": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage3sept.2026_03_06_53_1.png?v=1788401340&width=150",
+  },
+  "Montre Éclat Ovale Dorée – Bracelet Camel & Cadran Brun": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2sept.2026_02_44_55_2.png?v=1788313702&width=150",
+  },
+  "Montre Éclat Rectangulaire Dorée – Bracelet Métallique & Cadran Brun": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2sept.2026_17_18_02_1.png?v=1788366310&width=150",
+  },
+  "Montre Éclat Rectangulaire Dorée – Bracelet Bordeaux & Cadran Bordeaux": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2sept.2026_17_07_09_1.png?v=1788365366&width=150",
+  },
+  "Montre Éclat Rectangulaire Dorée – Bracelet Marron & Cadran Chocolat": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/photo_1_face.png?v=1788363066&width=150",
+  },
+  "Montre Éclat Rectangulaire Dorée – Bracelet Croco Marron & Cadran Champagne": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2sept.2026_03_21_10_1.png?v=1788315917&width=150",
+  },
+  "Montre Éclat Rectangulaire Dorée – Bracelet Taupe & Cadran Champagn": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2sept.2026_03_02_18_1.png?v=1788314619&width=150",
+  },
+  "Montre Éclat Dorée – Bracelet Métallique & Cadran Bordeaux": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2sept.2026_16_04_25_1.png?v=1788361647&width=150",
+  },
+  "Montre Éclat Rectangulaire Argentée – Élégance Intemporelle": {
+    "default": "https://cdn.shopify.com/s/files/1/0707/4349/0650/files/ChatGPTImage2sept.2026_02_06_27.png?v=1788312994&width=150",
+  },
 };
 
 // Normalise un nom de produit du PDF vers une clé du dictionnaire
 function findProductKey(itemName){
-  const n = itemName.toLowerCase();
+  const n = itemName.toLowerCase().trim();
+  // 1) Correspondance exacte (indispensable pour les montres aux noms très proches)
+  for(const k in VARIANT_IMAGES){ if(n === k.toLowerCase()) return k; }
+  // 2) Le nom Shopify contient la clé complète
+  for(const k in VARIANT_IMAGES){ if(n.includes(k.toLowerCase())) return k; }
+  // 3) Règles par mot-clé
   if(n.includes('softy')||n.includes('daily chic')) return 'Sac Softy – Modèle Daily Chic';
   if(n.includes('chic texturé')||n.includes('chic texture')) return 'Sac Chic Texturé';
   if(n.includes('élégance dorée')||n.includes('elegance doree')) return 'Sac Élégance Dorée';
@@ -539,6 +578,8 @@ function findProductKey(itemName){
   if(n.includes('luna')) return 'Sac Luna Élégance';
   if(n.includes('amélia')||n.includes('amelia')) return 'Sac Amélia Élégance';
   if(n.includes('curve')) return 'Sac Élégance Curve';
+  if(n.includes('grand cabas')||n.includes('cabas')) return 'Sac Élégance – Grand Cabas';
+  if(n.includes('campus')) return 'Sac Campus – Grand Format Back to School';
   return null;
 }
 
@@ -897,7 +938,16 @@ function applyCard(day,order){
 
 // ====== ÉDITEUR DE COMMANDE (ajout / retrait de sacs) ======
 function priceForName(name){
-  return /victoria élégance|luna élégance|sofia élégance|amélia élégance/.test((name||'').toLowerCase()) ? 189 : 149;
+  const n = (name||'').toLowerCase();
+  if(/montre/.test(n)) return 229;
+  if(/victoria élégance|luna élégance|sofia élégance|amélia élégance|grand cabas|campus/.test(n)) return 189;
+  return 149;
+}
+function costForName(name){
+  const n = (name||'').toLowerCase();
+  if(/montre/.test(n)) return 130;
+  if(/victoria élégance|luna élégance|sofia élégance|amélia élégance|grand cabas|campus/.test(n)) return 95;
+  return 65;
 }
 function recalcMontant(items){
   const n=items.length;
@@ -910,6 +960,10 @@ function parseCardItems(day,order){
   if(!card) return items;
   card.querySelectorAll('.item-name').forEach(el=>{
     let txt=el.textContent.replace('🛍','').trim();
+    // Produit sans couleur dont le nom contient déjà un tiret (montres, Grand Cabas...)
+    let exact=null;
+    for(const k in VARIANT_IMAGES){ if(txt.toLowerCase()===k.toLowerCase()) exact=k; }
+    if(exact){ items.push({name:exact,color:'',price:priceForName(exact)}); return; }
     const i=txt.lastIndexOf('–');
     let name,color;
     if(i>=0){ name=txt.slice(0,i).trim(); color=txt.slice(i+1).trim(); } else { name=txt; color=''; }
@@ -976,8 +1030,14 @@ window.onEditorModelChange=function(day,order){
   const ms=document.getElementById('edit-model-'+day+'-'+order);
   const cs=document.getElementById('edit-color-'+day+'-'+order);
   if(!ms||!cs) return;
-  const colors=Object.keys(VARIANT_IMAGES[ms.value]||{});
-  cs.innerHTML=colors.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+  const colors=Object.keys(VARIANT_IMAGES[ms.value]||{}).filter(c=>c!=='default');
+  if(colors.length){
+    cs.style.display='';
+    cs.innerHTML=colors.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+  } else {
+    cs.style.display='none';
+    cs.innerHTML='';
+  }
 };
 function renderEditorItems(day,order){
   const box=document.getElementById('editor-items-'+day+'-'+order); if(!box) return;
@@ -993,7 +1053,8 @@ window.addItemToOrder=function(day,order){
   const cs=document.getElementById('edit-color-'+day+'-'+order);
   if(!ms) return;
   const items=getCurrentItems(day,order);
-  items.push({name:ms.value, color:cs?cs.value:'', price:priceForName(ms.value)});
+  const hasColor = cs && cs.style.display!=='none' && cs.value;
+  items.push({name:ms.value, color:hasColor?cs.value:'', price:priceForName(ms.value)});
   saveItems(day,order,items); renderEditorItems(day,order);
 };
 window.removeItemFromOrder=function(day,order,idx){
@@ -1040,9 +1101,7 @@ function computeDayProfit(day){
     const revenue=totalEl?(parseInt(totalEl.textContent.replace(/[^\d]/g,''))||0):0;
     let cost=0;
     card.querySelectorAll('.item-name').forEach(item=>{
-      const name=item.textContent.toLowerCase();
-      const is189=/victoria élégance|luna élégance|sofia élégance|amélia élégance/.test(name);
-      cost+=is189?95:65;
+      cost+=costForName(item.textContent);
     });
     gross+=revenue-cost-30;
   });
