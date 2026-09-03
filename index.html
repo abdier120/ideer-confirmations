@@ -710,13 +710,14 @@ function renderFirebaseCard(day, orderId, data) {
 
   const n = items.length;
   const displayId = data.mergedWith ? orderId + ' · ' + data.mergedWith : orderId;
+  const lbl = itemsLabel(items.map(it => it.name || it.disp || ''), n);
   let montant = '';
   if (n <= 1) {
-    montant = `<div class="montant-line"><span>Sac × 1</span><span>${data.subtotal||149} DH</span></div>
+    montant = `<div class="montant-line"><span>${lbl} × 1</span><span>${data.subtotal||149} DH</span></div>
                <div class="montant-line total"><span>Total commande</span><span>${data.total||149} DH</span></div>`;
   } else {
-    montant = `<div class="montant-line"><span>${n} sacs</span><span>${data.subtotal||0} DH</span></div>
-               <div class="montant-line reduction"><span>🎁 Réduction (${n} sacs × 24 DH)</span><span>– ${data.reduc||0} DH</span></div>
+    montant = `<div class="montant-line"><span>${n} ${lbl}</span><span>${data.subtotal||0} DH</span></div>
+               <div class="montant-line reduction"><span>🎁 Réduction (${n} ${lbl} × 24 DH)</span><span>– ${data.reduc||0} DH</span></div>
                <div class="montant-line total"><span>Total commande</span><span>${data.total||0} DH</span></div>`;
   }
 
@@ -937,6 +938,16 @@ function applyCard(day,order){
 }
 
 // ====== ÉDITEUR DE COMMANDE (ajout / retrait de sacs) ======
+function itemsLabel(names, n){
+  const list = (names||[]).map(x => (x||'').toLowerCase());
+  const montres = list.filter(x => x.includes('montre')).length;
+  let mot;
+  if (montres === list.length && list.length) mot = n > 1 ? 'montres' : 'Montre';
+  else if (montres === 0) mot = n > 1 ? 'sacs' : 'Sac';
+  else mot = n > 1 ? 'articles' : 'Article';
+  return mot;
+}
+
 function priceForName(name){
   const n = (name||'').toLowerCase();
   if(/montre/.test(n)) return 229;
@@ -989,12 +1000,13 @@ function renderCardItems(day,order,items){
     montantBox.before(row);
   });
   const m=recalcMontant(items);
+  const lbl=itemsLabel(items.map(it=>it.name||''), m.n);
   if(m.n<=1){
-    montantBox.innerHTML='<div class="montant-line"><span>Sac × '+m.n+'</span><span>'+m.subtotal+' DH</span></div>'+
+    montantBox.innerHTML='<div class="montant-line"><span>'+lbl+' × '+m.n+'</span><span>'+m.subtotal+' DH</span></div>'+
       '<div class="montant-line total"><span>Total commande</span><span>'+m.total+' DH</span></div>';
   } else {
-    montantBox.innerHTML='<div class="montant-line"><span>'+m.n+' sacs</span><span>'+m.subtotal+' DH</span></div>'+
-      '<div class="montant-line reduction"><span>🎁 Réduction ('+m.n+' sacs × 24 DH)</span><span>– '+m.reduc+' DH</span></div>'+
+    montantBox.innerHTML='<div class="montant-line"><span>'+m.n+' '+lbl+'</span><span>'+m.subtotal+' DH</span></div>'+
+      '<div class="montant-line reduction"><span>🎁 Réduction ('+m.n+' '+lbl+' × 24 DH)</span><span>– '+m.reduc+' DH</span></div>'+
       '<div class="montant-line total"><span>Total commande</span><span>'+m.total+' DH</span></div>';
   }
 }
